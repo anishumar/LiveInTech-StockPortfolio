@@ -9,7 +9,6 @@ import SwiftUI
 
 struct QuickActionsView: View {
     @State private var showingTradeView = false
-    @State private var showingSearchView = false
     @State private var showingWatchlistView = false
     @State private var showingSettingsView = false
     @State private var showingPriceAlerts = false
@@ -37,13 +36,6 @@ struct QuickActionsView: View {
                     icon: "plus.circle.fill",
                     color: .green,
                     action: { showingTradeView = true }
-                )
-                
-                QuickActionCard(
-                    title: "Search",
-                    icon: "magnifyingglass.circle.fill",
-                    color: .blue,
-                    action: { showingSearchView = true }
                 )
                 
                 QuickActionCard(
@@ -85,9 +77,6 @@ struct QuickActionsView: View {
         }
         .sheet(isPresented: $showingTradeView) {
             TradeView()
-        }
-        .sheet(isPresented: $showingSearchView) {
-            AdvancedSearchView()
         }
         .sheet(isPresented: $showingWatchlistView) {
             WatchlistView()

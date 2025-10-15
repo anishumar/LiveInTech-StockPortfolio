@@ -21,13 +21,21 @@ struct HomeView: View {
                 }
                 .tag(0)
             
+            // Discover Tab
+            DiscoverView()
+                .tabItem {
+                    Image(systemName: "magnifyingglass")
+                    Text("Discover")
+                }
+                .tag(1)
+            
             // Analytics Tab
             PortfolioAnalyticsView()
                 .tabItem {
                     Image(systemName: "chart.bar.xaxis")
                     Text("Analytics")
                 }
-                .tag(1)
+                .tag(2)
             
             // Debug Tab (remove in production)
             NetworkTestView()
@@ -35,7 +43,7 @@ struct HomeView: View {
                     Image(systemName: "wrench.and.screwdriver")
                     Text("Debug")
                 }
-                .tag(2)
+                .tag(3)
         }
         .overlay(alignment: .topTrailing) {
             // Logout Button
