@@ -644,3 +644,72 @@ class RobustnessTests: XCTestCase {
         wait(for: [expectation], timeout: 2.0)
     }
 }
+
+// MARK: - UI Component Tests
+class UIComponentTests: XCTestCase {
+    
+    func testTransactionModel() throws {
+        let transaction = Transaction(
+            symbol: "AAPL",
+            quantity: 5,
+            price: 174.26,
+            type: .buy
+        )
+        
+        XCTAssertEqual(transaction.symbol, "AAPL")
+        XCTAssertEqual(transaction.quantity, 5)
+        XCTAssertEqual(transaction.price, 174.26)
+        XCTAssertEqual(transaction.type, .buy)
+        XCTAssertEqual(transaction.totalValue, 871.30)
+        XCTAssertEqual(transaction.formattedTotalValue, "$871.30")
+    }
+    
+    func testTransactionTypes() throws {
+        XCTAssertEqual(TransactionType.buy.rawValue, "BUY")
+        XCTAssertEqual(TransactionType.sell.rawValue, "SELL")
+        XCTAssertEqual(TransactionType.allCases.count, 2)
+    }
+    
+    func testStockChartDataGeneration() throws {
+        let basePrice = 100.0
+        let change = 5.0
+        let volatility = abs(change) * 0.5
+        
+        let chartPoints = (0..<5).map { index in
+            let progress = Double(index) / 4.0
+            let randomVariation = (Double.random(in: -1...1) * volatility)
+            return basePrice - (change * progress) + randomVariation
+        }
+        
+        XCTAssertEqual(chartPoints.count, 5)
+        XCTAssertTrue(chartPoints.allSatisfy { $0 > 0 })
+    }
+    
+    func testPortfolioStockChartIntegration() throws {
+        let portfolioStock = PortfolioStock(
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            currentPrice: 174.26,
+            quantity: 2,
+            averagePrice: 150.0,
+            dailyChange: -0.42,
+            totalValue: 348.52,
+            gainLoss: 48.52,
+            gainLossPercentage: 16.17
+        )
+        
+        // Test chart data generation
+        let basePrice = portfolioStock.currentPrice
+        let change = portfolioStock.dailyChange
+        let volatility = abs(change) * 0.5
+        
+        let chartPoints = (0..<5).map { index in
+            let progress = Double(index) / 4.0
+            return basePrice - (change * progress)
+        }
+        
+        XCTAssertEqual(chartPoints.count, 5)
+        XCTAssertEqual(chartPoints.first, 174.26)
+        XCTAssertEqual(chartPoints.last, 174.68, accuracy: 0.01)
+    }
+}

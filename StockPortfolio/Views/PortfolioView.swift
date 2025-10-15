@@ -10,6 +10,7 @@ import SwiftUI
 struct PortfolioView: View {
     @StateObject private var viewModel = PortfolioViewModel()
     @State private var showingTradeView = false
+    @State private var showingTransactionHistory = false
     @State private var showingErrorAlert = false
     @State private var errorToShow: Error?
     
@@ -32,6 +33,15 @@ struct PortfolioView: View {
             .navigationTitle("Portfolio")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button(action: {
+                        showingTransactionHistory = true
+                    }) {
+                        Image(systemName: "clock.arrow.circlepath")
+                            .foregroundColor(.blue)
+                    }
+                }
+                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Trade") {
                         showingTradeView = true
@@ -44,6 +54,9 @@ struct PortfolioView: View {
             }
             .sheet(isPresented: $showingTradeView) {
                 TradeView()
+            }
+            .sheet(isPresented: $showingTransactionHistory) {
+                TransactionHistoryView()
             }
             .onChange(of: viewModel.errorMessage) { errorMessage in
                 if let errorMessage = errorMessage {
@@ -83,9 +96,13 @@ struct PortfolioView: View {
         VStack(spacing: 16) {
             // Total Value
             VStack(spacing: 4) {
-                Text("Total Portfolio Value")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
+                HStack {
+                    Image(systemName: "chart.line.uptrend.xyaxis")
+                        .foregroundColor(.blue)
+                    Text("Total Portfolio Value")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
                 
                 Text(viewModel.formattedTotalValue)
                     .font(.largeTitle)
@@ -96,6 +113,9 @@ struct PortfolioView: View {
             // Gain/Loss
             if viewModel.hasPortfolioItems {
                 HStack(spacing: 8) {
+                    Image(systemName: viewModel.isPositiveGain ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
+                        .foregroundColor(viewModel.isPositiveGain ? .green : .red)
+                    
                     Text(viewModel.formattedTotalGainLoss)
                         .font(.title2)
                         .fontWeight(.semibold)
@@ -106,6 +126,12 @@ struct PortfolioView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(viewModel.isPositiveGain ? .green : .red)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(viewModel.isPositiveGain ? Color.green.opacity(0.1) : Color.red.opacity(0.1))
+                )
             }
             
             // Refresh Status
@@ -117,10 +143,22 @@ struct PortfolioView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(Color.blue.opacity(0.1))
+                )
             }
         }
         .padding()
-        .background(Color(.systemGray6))
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: [Color(.systemGray6), Color(.systemGray5)]),
+                startPoint: .top,
+                endPoint: .bottom
+            )
+        )
     }
     
     // MARK: - Portfolio Content
@@ -167,6 +205,7 @@ struct PortfolioView: View {
 
 struct PortfolioStockRowView: View {
     let stock: PortfolioStock
+    @State private var chartPoints: [Double] = []
     
     var body: some View {
         VStack(spacing: 12) {
@@ -201,38 +240,96 @@ struct PortfolioStockRowView: View {
                 }
             }
             
-            // Details Row
-            HStack {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("\(stock.quantity) shares")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    Text("Avg: \(String(format: "$%.2f", stock.averagePrice))")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-                
-                Spacer()
-                
-                VStack(alignment: .trailing, spacing: 2) {
-                    Text("Current: \(stock.formattedCurrentPrice)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                    
-                    HStack(spacing: 4) {
-                        Image(systemName: stock.dailyChange >= 0 ? "arrow.up" : "arrow.down")
-                            .font(.caption2)
-                            .foregroundColor(stock.dailyChange >= 0 ? .green : .red)
-                        
-                        Text("\(stock.dailyChange >= 0 ? "+" : "")\(String(format: "%.2f", stock.dailyChange))")
+            // Chart Row
+            if !chartPoints.isEmpty {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(stock.quantity) shares")
                             .font(.caption)
-                            .foregroundColor(stock.dailyChange >= 0 ? .green : .red)
+                            .foregroundColor(.secondary)
+                        
+                        Text("Avg: \(String(format: "$%.2f", stock.averagePrice))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    // Mini Chart
+                    StockChartView(
+                        chartPoints: chartPoints,
+                        isPositive: stock.dailyChange >= 0
+                    )
+                    .frame(width: 80, height: 30)
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("Current: \(stock.formattedCurrentPrice)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        HStack(spacing: 4) {
+                            Image(systemName: stock.dailyChange >= 0 ? "arrow.up" : "arrow.down")
+                                .font(.caption2)
+                                .foregroundColor(stock.dailyChange >= 0 ? .green : .red)
+                            
+                            Text("\(stock.dailyChange >= 0 ? "+" : "")\(String(format: "%.2f", stock.dailyChange))")
+                                .font(.caption)
+                                .foregroundColor(stock.dailyChange >= 0 ? .green : .red)
+                        }
+                    }
+                }
+            } else {
+                // Fallback details row without chart
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(stock.quantity) shares")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        Text("Avg: \(String(format: "$%.2f", stock.averagePrice))")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                    
+                    Spacer()
+                    
+                    VStack(alignment: .trailing, spacing: 2) {
+                        Text("Current: \(stock.formattedCurrentPrice)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        
+                        HStack(spacing: 4) {
+                            Image(systemName: stock.dailyChange >= 0 ? "arrow.up" : "arrow.down")
+                                .font(.caption2)
+                                .foregroundColor(stock.dailyChange >= 0 ? .green : .red)
+                            
+                            Text("\(stock.dailyChange >= 0 ? "+" : "")\(String(format: "%.2f", stock.dailyChange))")
+                                .font(.caption)
+                                .foregroundColor(stock.dailyChange >= 0 ? .green : .red)
+                        }
                     }
                 }
             }
         }
         .padding(.vertical, 8)
+        .onAppear {
+            loadChartData()
+        }
+    }
+    
+    private func loadChartData() {
+        // Generate mock chart data based on current price and daily change
+        let basePrice = stock.currentPrice
+        let change = stock.dailyChange
+        let volatility = abs(change) * 0.5
+        
+        chartPoints = (0..<5).map { index in
+            let progress = Double(index) / 4.0
+            let randomVariation = (Double.random(in: -1...1) * volatility)
+            return basePrice - (change * progress) + randomVariation
+        }
     }
 }
 
