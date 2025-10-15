@@ -20,6 +20,10 @@ struct PortfolioView: View {
                 // Offline Indicator
                 OfflineIndicatorView()
                 
+                // Quick Actions
+                QuickActionsView()
+                    .padding(.vertical, 8)
+                
                 // Portfolio Summary Header
                 portfolioSummaryHeader
                 
@@ -166,7 +170,29 @@ struct PortfolioView: View {
     private var portfolioContent: some View {
         List {
             ForEach(viewModel.portfolioStocks) { stock in
-                PortfolioStockRowView(stock: stock)
+                NavigationLink(destination: TradeView()) {
+                    PortfolioStockRowView(stock: stock)
+                }
+                .buttonStyle(PlainButtonStyle())
+                .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                    Button("Sell") {
+                        // Quick sell action
+                        showingTradeView = true
+                    }
+                    .tint(.red)
+                    
+                    Button("Trade") {
+                        showingTradeView = true
+                    }
+                    .tint(.blue)
+                }
+                .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                    Button("Buy More") {
+                        // Quick buy action
+                        showingTradeView = true
+                    }
+                    .tint(.green)
+                }
             }
         }
         .listStyle(PlainListStyle())
