@@ -9,6 +9,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
+    @StateObject private var userSession = UserSession.shared
     @Environment(\.dismiss) private var dismiss
     
     var body: some View {
@@ -244,6 +245,25 @@ struct SettingsView: View {
                 }
             }
             .foregroundColor(.primary)
+            
+            Button(action: {
+                userSession.logout()
+            }) {
+                HStack {
+                    Image(systemName: "rectangle.portrait.and.arrow.right")
+                        .foregroundColor(.red)
+                        .frame(width: 24)
+                    
+                    Text("Sign Out")
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .foregroundColor(.red)
         } header: {
             Text("Data & Privacy")
         }

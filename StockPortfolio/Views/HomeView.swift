@@ -36,26 +36,6 @@ struct HomeView: View {
                     Text("Analytics")
                 }
                 .tag(2)
-            
-            // Debug Tab (remove in production)
-            NetworkTestView()
-                .tabItem {
-                    Image(systemName: "wrench.and.screwdriver")
-                    Text("Debug")
-                }
-                .tag(3)
-        }
-        .overlay(alignment: .topTrailing) {
-            // Logout Button
-            Button(action: {
-                userSession.logout()
-            }) {
-                Image(systemName: "rectangle.portrait.and.arrow.right")
-                    .foregroundColor(.red)
-                    .padding()
-            }
-            .padding(.top, 8)
-            .padding(.trailing, 8)
         }
     }
 }
