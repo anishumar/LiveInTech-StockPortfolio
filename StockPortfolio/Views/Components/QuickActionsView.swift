@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct QuickActionsView: View {
-    @State private var showingTradeView = false
     @State private var showingWatchlistView = false
     @State private var showingSettingsView = false
     @State private var showingPriceAlerts = false
@@ -30,13 +29,6 @@ struct QuickActionsView: View {
                 GridItem(.flexible()),
                 GridItem(.flexible())
             ], spacing: 12) {
-                QuickActionCard(
-                    title: "Buy Stock",
-                    icon: "plus.circle.fill",
-                    color: .green,
-                    action: { showingTradeView = true }
-                )
-                
                 QuickActionCard(
                     title: "Watchlist",
                     icon: "eye.circle.fill",
@@ -66,9 +58,6 @@ struct QuickActionsView: View {
                 )
             }
             .padding(.horizontal)
-        }
-        .sheet(isPresented: $showingTradeView) {
-            TradeView()
         }
         .sheet(isPresented: $showingWatchlistView) {
             WatchlistView()
