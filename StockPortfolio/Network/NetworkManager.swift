@@ -154,12 +154,16 @@ class NetworkManager: ObservableObject {
             DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
                 // Simulate network failures (10% chance)
                 if Double.random(in: 0...1) < 0.1 {
-                    self.isOnline = false
+                    DispatchQueue.main.async {
+                        self.isOnline = false
+                    }
                     promise(.failure(.networkError("Simulated network failure")))
                     return
                 }
                 
-                self.isOnline = true
+                DispatchQueue.main.async {
+                    self.isOnline = true
+                }
                 
                 // Simulate timeout (5% chance)
                 if Double.random(in: 0...1) < 0.05 {
@@ -210,8 +214,10 @@ class NetworkManager: ObservableObject {
             .retry(retryAttempts)
             .catch { error -> AnyPublisher<[Stock], NetworkError> in
                 print("❌ Network call failed after \(self.retryAttempts) attempts: \(error)")
-                self.lastError = error
-                self.isOnline = false
+                DispatchQueue.main.async {
+                    self.lastError = error
+                    self.isOnline = false
+                }
                 return Just([])
                     .setFailureType(to: NetworkError.self)
                     .eraseToAnyPublisher()
@@ -224,8 +230,10 @@ class NetworkManager: ObservableObject {
             .retry(retryAttempts)
             .catch { error -> AnyPublisher<Stock, NetworkError> in
                 print("❌ Stock fetch failed after \(self.retryAttempts) attempts: \(error)")
-                self.lastError = error
-                self.isOnline = false
+                DispatchQueue.main.async {
+                    self.lastError = error
+                    self.isOnline = false
+                }
                 return Fail(error: error)
                     .eraseToAnyPublisher()
             }
@@ -235,17 +243,23 @@ class NetworkManager: ObservableObject {
     // MARK: - Debug Methods
     
     func simulateNetworkFailure() {
-        isOnline = false
-        lastError = .networkError("Simulated failure for testing")
+        DispatchQueue.main.async {
+            self.isOnline = false
+            self.lastError = .networkError("Simulated failure for testing")
+        }
     }
     
     func simulateTimeout() {
-        isOnline = false
-        lastError = .timeout
+        DispatchQueue.main.async {
+            self.isOnline = false
+            self.lastError = .timeout
+        }
     }
     
     func resetNetwork() {
-        isOnline = true
-        lastError = nil
+        DispatchQueue.main.async {
+            self.isOnline = true
+            self.lastError = nil
+        }
     }
 }
