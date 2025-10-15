@@ -43,6 +43,14 @@ struct HomeView: View {
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
+                    
+                    // Debug link (remove in production)
+                    NavigationLink(destination: NetworkTestView()) {
+                        Text("Test Network Layer")
+                            .font(.caption)
+                            .foregroundColor(.blue)
+                            .padding(.top, 8)
+                    }
                 }
                 
                 Spacer()

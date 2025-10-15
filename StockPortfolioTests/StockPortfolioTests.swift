@@ -80,3 +80,178 @@ class AuthViewModelTests: XCTestCase {
         XCTAssertFalse(authViewModel.validateConfirmPassword(password: "password123", confirmPassword: ""))
     }
 }
+
+// MARK: - NetworkManager Tests
+class NetworkManagerTests: XCTestCase {
+    var networkManager: NetworkManager!
+    var cancellables: Set<AnyCancellable>!
+    
+    override func setUpWithError() throws {
+        networkManager = NetworkManager.shared
+        cancellables = Set<AnyCancellable>()
+    }
+    
+    override func tearDownWithError() throws {
+        cancellables = nil
+        networkManager = nil
+    }
+    
+    func testFetchAllStocks() throws {
+        let expectation = XCTestExpectation(description: "Fetch all stocks")
+        
+        networkManager.fetchAllStocks()
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        XCTFail("Network call failed: \(error)")
+                    }
+                    expectation.fulfill()
+                },
+                receiveValue: { stocks in
+                    XCTAssertFalse(stocks.isEmpty, "Should return stocks")
+                    XCTAssertTrue(stocks.count > 0, "Should have at least one stock")
+                    print("✅ Fetched \(stocks.count) stocks")
+                }
+            )
+            .store(in: &cancellables)
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
+    
+    func testFetchStockBySymbol() throws {
+        let expectation = XCTestExpectation(description: "Fetch stock by symbol")
+        
+        networkManager.fetchStock(symbol: "AAPL")
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        XCTFail("Network call failed: \(error)")
+                    }
+                    expectation.fulfill()
+                },
+                receiveValue: { stock in
+                    XCTAssertEqual(stock.symbol, "AAPL", "Should return AAPL stock")
+                    XCTAssertFalse(stock.name.isEmpty, "Stock should have a name")
+                    XCTAssertTrue(stock.price > 0, "Stock should have a positive price")
+                    print("✅ Fetched stock: \(stock.debugDescription)")
+                }
+            )
+            .store(in: &cancellables)
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
+    
+    func testSearchStocks() throws {
+        let expectation = XCTestExpectation(description: "Search stocks")
+        
+        networkManager.searchStocks(query: "Apple")
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        XCTFail("Search failed: \(error)")
+                    }
+                    expectation.fulfill()
+                },
+                receiveValue: { results in
+                    XCTAssertFalse(results.isEmpty, "Should find Apple-related stocks")
+                    print("✅ Found \(results.count) stocks matching 'Apple'")
+                }
+            )
+            .store(in: &cancellables)
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
+    
+    func testNetworkErrorHandling() throws {
+        let expectation = XCTestExpectation(description: "Test network error handling")
+        
+        // Simulate network failure
+        networkManager.simulateNetworkFailure()
+        
+        networkManager.fetchAllStocks()
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        XCTAssertNotNil(error, "Should receive network error")
+                        print("✅ Received expected network error: \(error)")
+                    }
+                    expectation.fulfill()
+                },
+                receiveValue: { _ in
+                    XCTFail("Should not receive data when network is offline")
+                }
+            )
+            .store(in: &cancellables)
+        
+        wait(for: [expectation], timeout: 5.0)
+    }
+    
+    func testRetryLogic() throws {
+        let expectation = XCTestExpectation(description: "Test retry logic")
+        
+        networkManager.fetchAllStocksWithRetry()
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        print("❌ Retry failed: \(error)")
+                    }
+                    expectation.fulfill()
+                },
+                receiveValue: { stocks in
+                    print("✅ Retry succeeded with \(stocks.count) stocks")
+                }
+            )
+            .store(in: &cancellables)
+        
+        wait(for: [expectation], timeout: 15.0)
+    }
+}
+
+// MARK: - Stock Model Tests
+class StockModelTests: XCTestCase {
+    
+    func testStockInitialization() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: [170, 171, 172, 174, 174.26])
+        
+        XCTAssertEqual(stock.symbol, "AAPL")
+        XCTAssertEqual(stock.name, "Apple Inc.")
+        XCTAssertEqual(stock.price, 174.26)
+        XCTAssertEqual(stock.dailyChange, -0.42)
+        XCTAssertFalse(stock.isPositiveChange)
+        XCTAssertEqual(stock.changeColor, "red")
+    }
+    
+    func testStockFormatting() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        
+        XCTAssertEqual(stock.formattedPrice, "$174.26")
+        XCTAssertEqual(stock.formattedChange, "-0.42")
+        XCTAssertTrue(stock.formattedChangePercentage.contains("-"))
+    }
+    
+    func testStockSearch() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        
+        XCTAssertTrue(stock.matches(query: "AAPL"))
+        XCTAssertTrue(stock.matches(query: "apple"))
+        XCTAssertTrue(stock.matches(query: "Apple"))
+        XCTAssertFalse(stock.matches(query: "GOOGL"))
+        XCTAssertFalse(stock.matches(query: "Microsoft"))
+    }
+    
+    func testStockEquality() throws {
+        let stock1 = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        let stock2 = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        let stock3 = Stock(symbol: "GOOGL", name: "Alphabet Inc.", price: 135.50, dailyChange: 1.8, chartPoints: nil)
+        
+        XCTAssertEqual(stock1, stock2)
+        XCTAssertNotEqual(stock1, stock3)
+    }
+    
+    func testStockHashable() throws {
+        let stock1 = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        let stock2 = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        
+        XCTAssertEqual(stock1.hashValue, stock2.hashValue)
+    }
+}
