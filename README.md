@@ -44,15 +44,15 @@ The app is built with:
 ## Screenshots
 
 ### Portfolio View
-![Portfolio Dashboard](screenshots/portfolio.png)
+<img src="screenshots/portfolio.png" width="300" alt="Portfolio Dashboard">
 *Your main dashboard showing total portfolio value and individual stock holdings*
 
 ### Discover & Search
-![Stock Discovery](screenshots/discover.png)
+<img src="screenshots/discover.png" width="300" alt="Stock Discovery">
 *Search for stocks, view watchlist, and set price alerts*
 
 ### Analytics Dashboard
-![Portfolio Analytics](screenshots/analytics.png)
+<img src="screenshots/analytics.png" width="300" alt="Portfolio Analytics">
 *Detailed analytics with performance charts and portfolio insights*
 
 ## Testing
