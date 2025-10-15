@@ -9,6 +9,7 @@ import SwiftUI
 
 struct PortfolioAnalyticsView: View {
     @StateObject private var viewModel: PortfolioAnalyticsViewModel = PortfolioAnalyticsViewModel()
+    @State private var showingSettings = false
     @State private var selectedTimeframe: Timeframe = .month
     
     enum Timeframe: String, CaseIterable {
@@ -36,16 +37,27 @@ struct PortfolioAnalyticsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        viewModel.refreshAnalytics()
-                    }) {
-                        Image(systemName: "arrow.clockwise")
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            showingSettings = true
+                        }) {
+                            Image(systemName: "gearshape")
+                        }
+                        
+                        Button(action: {
+                            viewModel.refreshAnalytics()
+                        }) {
+                            Image(systemName: "arrow.clockwise")
+                        }
                     }
                 }
             }
             .refreshable {
                 viewModel.refreshAnalytics()
             }
+        }
+        .sheet(isPresented: $showingSettings) {
+            SettingsView()
         }
     }
     

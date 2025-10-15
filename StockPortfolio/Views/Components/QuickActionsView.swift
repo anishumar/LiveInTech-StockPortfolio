@@ -8,9 +8,6 @@
 import SwiftUI
 
 struct QuickActionsView: View {
-    @State private var showingSettingsView = false
-    @State private var showingInsights = false
-    
     var body: some View {
         VStack(spacing: 16) {
             // Quick Actions Header
@@ -22,32 +19,23 @@ struct QuickActionsView: View {
             }
             .padding(.horizontal)
             
-            // Quick Actions Grid
-            LazyVGrid(columns: [
-                GridItem(.flexible()),
-                GridItem(.flexible())
-            ], spacing: 12) {
-                QuickActionCard(
-                    title: "Insights",
-                    icon: "brain.head.profile",
-                    color: .purple,
-                    action: { showingInsights = true }
-                )
+            // No quick actions available
+            VStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(.green)
                 
-                QuickActionCard(
-                    title: "Settings",
-                    icon: "gearshape.circle.fill",
-                    color: .gray,
-                    action: { showingSettingsView = true }
-                )
+                Text("All set!")
+                    .font(.headline)
+                    .fontWeight(.medium)
+                
+                Text("Quick actions have been moved to their respective tabs for better organization.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
             }
+            .padding(.vertical, 20)
             .padding(.horizontal)
-        }
-        .sheet(isPresented: $showingInsights) {
-            PortfolioInsightsView()
-        }
-        .sheet(isPresented: $showingSettingsView) {
-            SettingsView()
         }
     }
 }
