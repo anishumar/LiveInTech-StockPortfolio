@@ -255,3 +255,110 @@ class StockModelTests: XCTestCase {
         XCTAssertEqual(stock1.hashValue, stock2.hashValue)
     }
 }
+
+// MARK: - PortfolioViewModel Tests
+class PortfolioViewModelTests: XCTestCase {
+    var portfolioViewModel: PortfolioViewModel!
+    var cancellables: Set<AnyCancellable>!
+    
+    override func setUpWithError() throws {
+        portfolioViewModel = PortfolioViewModel()
+        cancellables = Set<AnyCancellable>()
+    }
+    
+    override func tearDownWithError() throws {
+        cancellables = nil
+        portfolioViewModel = nil
+    }
+    
+    func testPortfolioStockInitialization() throws {
+        let portfolioStock = PortfolioStock(
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            currentPrice: 174.26,
+            quantity: 2,
+            averagePrice: 150.0,
+            dailyChange: -0.42,
+            totalValue: 348.52,
+            gainLoss: 48.52,
+            gainLossPercentage: 16.17
+        )
+        
+        XCTAssertEqual(portfolioStock.symbol, "AAPL")
+        XCTAssertEqual(portfolioStock.name, "Apple Inc.")
+        XCTAssertEqual(portfolioStock.currentPrice, 174.26)
+        XCTAssertEqual(portfolioStock.quantity, 2)
+        XCTAssertEqual(portfolioStock.averagePrice, 150.0)
+        XCTAssertEqual(portfolioStock.totalValue, 348.52)
+        XCTAssertEqual(portfolioStock.gainLoss, 48.52)
+        XCTAssertEqual(portfolioStock.gainLossPercentage, 16.17)
+        XCTAssertTrue(portfolioStock.isPositiveGain)
+    }
+    
+    func testPortfolioStockFormatting() throws {
+        let portfolioStock = PortfolioStock(
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            currentPrice: 174.26,
+            quantity: 2,
+            averagePrice: 150.0,
+            dailyChange: -0.42,
+            totalValue: 348.52,
+            gainLoss: 48.52,
+            gainLossPercentage: 16.17
+        )
+        
+        XCTAssertEqual(portfolioStock.formattedCurrentPrice, "$174.26")
+        XCTAssertEqual(portfolioStock.formattedTotalValue, "$348.52")
+        XCTAssertEqual(portfolioStock.formattedGainLoss, "+48.52")
+        XCTAssertEqual(portfolioStock.formattedGainLossPercentage, "+16.17%")
+    }
+    
+    func testPortfolioStockNegativeGain() throws {
+        let portfolioStock = PortfolioStock(
+            symbol: "TSLA",
+            name: "Tesla, Inc.",
+            currentPrice: 200.0,
+            quantity: 1,
+            averagePrice: 250.0,
+            dailyChange: 2.14,
+            totalValue: 200.0,
+            gainLoss: -50.0,
+            gainLossPercentage: -20.0
+        )
+        
+        XCTAssertFalse(portfolioStock.isPositiveGain)
+        XCTAssertEqual(portfolioStock.formattedGainLoss, "-50.00")
+        XCTAssertEqual(portfolioStock.formattedGainLossPercentage, "-20.00%")
+    }
+    
+    func testPortfolioViewModelInitialization() throws {
+        XCTAssertNotNil(portfolioViewModel)
+        XCTAssertEqual(portfolioViewModel.totalPortfolioValue, 0.0)
+        XCTAssertEqual(portfolioViewModel.totalGainLoss, 0.0)
+        XCTAssertEqual(portfolioViewModel.totalGainLossPercentage, 0.0)
+        XCTAssertFalse(portfolioViewModel.isRefreshing)
+        XCTAssertFalse(portfolioViewModel.hasPortfolioItems)
+    }
+    
+    func testPortfolioViewModelFormatting() throws {
+        // Test with sample data
+        portfolioViewModel.totalPortfolioValue = 1000.50
+        portfolioViewModel.totalGainLoss = 50.25
+        portfolioViewModel.totalGainLossPercentage = 5.25
+        
+        XCTAssertEqual(portfolioViewModel.formattedTotalValue, "$1000.50")
+        XCTAssertEqual(portfolioViewModel.formattedTotalGainLoss, "+50.25")
+        XCTAssertEqual(portfolioViewModel.formattedTotalGainLossPercentage, "+5.25%")
+        XCTAssertTrue(portfolioViewModel.isPositiveGain)
+    }
+    
+    func testPortfolioViewModelNegativeGain() throws {
+        portfolioViewModel.totalGainLoss = -25.75
+        portfolioViewModel.totalGainLossPercentage = -2.5
+        
+        XCTAssertEqual(portfolioViewModel.formattedTotalGainLoss, "-25.75")
+        XCTAssertEqual(portfolioViewModel.formattedTotalGainLossPercentage, "-2.50%")
+        XCTAssertFalse(portfolioViewModel.isPositiveGain)
+    }
+}
