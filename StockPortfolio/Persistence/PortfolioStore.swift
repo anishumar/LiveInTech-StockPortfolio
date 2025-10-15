@@ -18,6 +18,10 @@ class PortfolioStore: ObservableObject {
     private let portfolioKey = "portfolioItems"
     private let transactionsKey = "transactions"
     
+    // Concurrency safety
+    private let queue = DispatchQueue(label: "com.stockport.portfolio", qos: .userInitiated)
+    private let semaphore = DispatchSemaphore(value: 1)
+    
     private init() {
         loadPortfolio()
         loadTransactions()
@@ -25,43 +29,70 @@ class PortfolioStore: ObservableObject {
     }
     
     func addPortfolioItem(_ item: PortfolioItem) {
-        if let existingIndex = portfolioItems.firstIndex(where: { $0.symbol == item.symbol }) {
-            let existing = portfolioItems[existingIndex]
-            let newQuantity = existing.quantity + item.quantity
-            let newAveragePrice = ((Double(existing.quantity) * existing.averagePrice) + (Double(item.quantity) * item.averagePrice)) / Double(newQuantity)
+        queue.async { [weak self] in
+            guard let self = self else { return }
             
-            portfolioItems[existingIndex] = PortfolioItem(
-                symbol: item.symbol,
-                quantity: newQuantity,
-                averagePrice: newAveragePrice
-            )
-        } else {
-            portfolioItems.append(item)
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
+            
+            DispatchQueue.main.async {
+                if let existingIndex = self.portfolioItems.firstIndex(where: { $0.symbol == item.symbol }) {
+                    let existing = self.portfolioItems[existingIndex]
+                    let newQuantity = existing.quantity + item.quantity
+                    let newAveragePrice = ((Double(existing.quantity) * existing.averagePrice) + (Double(item.quantity) * item.averagePrice)) / Double(newQuantity)
+                    
+                    self.portfolioItems[existingIndex] = PortfolioItem(
+                        symbol: item.symbol,
+                        quantity: newQuantity,
+                        averagePrice: newAveragePrice
+                    )
+                } else {
+                    self.portfolioItems.append(item)
+                }
+                self.savePortfolio()
+            }
         }
-        savePortfolio()
     }
     
     func removePortfolioItem(symbol: String, quantity: Int) {
-        if let index = portfolioItems.firstIndex(where: { $0.symbol == symbol }) {
-            let existing = portfolioItems[index]
-            let newQuantity = existing.quantity - quantity
+        queue.async { [weak self] in
+            guard let self = self else { return }
             
-            if newQuantity <= 0 {
-                portfolioItems.remove(at: index)
-            } else {
-                portfolioItems[index] = PortfolioItem(
-                    symbol: symbol,
-                    quantity: newQuantity,
-                    averagePrice: existing.averagePrice
-                )
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
+            
+            DispatchQueue.main.async {
+                if let index = self.portfolioItems.firstIndex(where: { $0.symbol == symbol }) {
+                    let existing = self.portfolioItems[index]
+                    let newQuantity = existing.quantity - quantity
+                    
+                    if newQuantity <= 0 {
+                        self.portfolioItems.remove(at: index)
+                    } else {
+                        self.portfolioItems[index] = PortfolioItem(
+                            symbol: symbol,
+                            quantity: newQuantity,
+                            averagePrice: existing.averagePrice
+                        )
+                    }
+                    self.savePortfolio()
+                }
             }
-            savePortfolio()
         }
     }
     
     func addTransaction(_ transaction: Transaction) {
-        transactions.append(transaction)
-        saveTransactions()
+        queue.async { [weak self] in
+            guard let self = self else { return }
+            
+            self.semaphore.wait()
+            defer { self.semaphore.signal() }
+            
+            DispatchQueue.main.async {
+                self.transactions.append(transaction)
+                self.saveTransactions()
+            }
+        }
     }
     
     private func savePortfolio() {

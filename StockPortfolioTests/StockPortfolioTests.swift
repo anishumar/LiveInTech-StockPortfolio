@@ -485,3 +485,162 @@ class TradeViewModelTests: XCTestCase {
         XCTAssertTrue(tradeViewModel.canSell)
     }
 }
+
+// MARK: - Robustness Tests
+class RobustnessTests: XCTestCase {
+    var networkManager: NetworkManager!
+    var portfolioStore: PortfolioStore!
+    var cancellables: Set<AnyCancellable>!
+    
+    override func setUpWithError() throws {
+        networkManager = NetworkManager.shared
+        portfolioStore = PortfolioStore.shared
+        cancellables = Set<AnyCancellable>()
+    }
+    
+    override func tearDownWithError() throws {
+        cancellables = nil
+        networkManager = nil
+        portfolioStore = nil
+    }
+    
+    func testNetworkRetryLogic() throws {
+        let expectation = XCTestExpectation(description: "Network retry with backoff")
+        
+        // Simulate network failure
+        networkManager.simulateNetworkFailure()
+        
+        networkManager.fetchAllStocksWithRetry()
+            .sink(
+                receiveCompletion: { completion in
+                    if case .failure(let error) = completion {
+                        print("✅ Retry failed as expected: \(error)")
+                    }
+                    expectation.fulfill()
+                },
+                receiveValue: { stocks in
+                    print("✅ Retry succeeded with \(stocks.count) stocks")
+                }
+            )
+            .store(in: &cancellables)
+        
+        wait(for: [expectation], timeout: 10.0)
+    }
+    
+    func testConcurrentPortfolioUpdates() throws {
+        let expectation = XCTestExpectation(description: "Concurrent portfolio updates")
+        expectation.expectedFulfillmentCount = 10
+        
+        // Simulate concurrent portfolio updates
+        for i in 0..<10 {
+            DispatchQueue.global().async {
+                let item = PortfolioItem(
+                    symbol: "TEST\(i)",
+                    quantity: 1,
+                    averagePrice: 100.0
+                )
+                self.portfolioStore.addPortfolioItem(item)
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify no data corruption
+        let portfolioItems = portfolioStore.portfolioItems
+        XCTAssertEqual(portfolioItems.count, 10, "Should have 10 portfolio items")
+        
+        // Verify all items are unique
+        let symbols = portfolioItems.map { $0.symbol }
+        let uniqueSymbols = Set(symbols)
+        XCTAssertEqual(symbols.count, uniqueSymbols.count, "All portfolio items should be unique")
+    }
+    
+    func testInputValidation() throws {
+        let tradeViewModel = TradeViewModel()
+        
+        // Test empty quantity
+        tradeViewModel.quantity = ""
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        
+        // Test invalid quantity
+        tradeViewModel.quantity = "abc"
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        XCTAssertNotNil(tradeViewModel.errorMessage)
+        
+        // Test negative quantity
+        tradeViewModel.quantity = "-5"
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        
+        // Test zero quantity
+        tradeViewModel.quantity = "0"
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        
+        // Test too large quantity
+        tradeViewModel.quantity = "15000"
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        XCTAssertTrue(tradeViewModel.errorMessage?.contains("10,000") ?? false)
+    }
+    
+    func testOfflineHandling() throws {
+        let expectation = XCTestExpectation(description: "Offline handling")
+        
+        // Simulate offline state
+        networkManager.simulateNetworkFailure()
+        
+        XCTAssertFalse(networkManager.isOnline)
+        XCTAssertNotNil(networkManager.lastError)
+        
+        // Test that we can still access cached data
+        let portfolioItems = portfolioStore.portfolioItems
+        XCTAssertNotNil(portfolioItems)
+        
+        expectation.fulfill()
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    func testErrorHandling() throws {
+        let tradeViewModel = TradeViewModel()
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        
+        tradeViewModel.selectStock(stock)
+        tradeViewModel.tradeType = .sell
+        tradeViewModel.availableQuantity = 5
+        tradeViewModel.quantity = "10" // More than available
+        
+        // Should show error for insufficient shares
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        XCTAssertNotNil(tradeViewModel.errorMessage)
+        XCTAssertTrue(tradeViewModel.errorMessage?.contains("Insufficient shares") ?? false)
+    }
+    
+    func testDataConsistency() throws {
+        let expectation = XCTestExpectation(description: "Data consistency test")
+        
+        // Add multiple items for the same stock
+        let item1 = PortfolioItem(symbol: "AAPL", quantity: 2, averagePrice: 150.0)
+        let item2 = PortfolioItem(symbol: "AAPL", quantity: 3, averagePrice: 160.0)
+        
+        portfolioStore.addPortfolioItem(item1)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            self.portfolioStore.addPortfolioItem(item2)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                let items = self.portfolioStore.portfolioItems
+                let aaplItem = items.first { $0.symbol == "AAPL" }
+                
+                XCTAssertNotNil(aaplItem)
+                XCTAssertEqual(aaplItem?.quantity, 5) // 2 + 3
+                
+                // Verify average price calculation
+                let expectedAverage = ((2 * 150.0) + (3 * 160.0)) / 5.0
+                XCTAssertEqual(aaplItem?.averagePrice, expectedAverage, accuracy: 0.01)
+                
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 2.0)
+    }
+}

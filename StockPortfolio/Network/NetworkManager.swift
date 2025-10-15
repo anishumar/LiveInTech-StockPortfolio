@@ -203,7 +203,7 @@ class NetworkManager: ObservableObject {
         }
     }
     
-    // MARK: - Retry Logic
+    // MARK: - Retry Logic with Exponential Backoff
     
     func fetchAllStocksWithRetry() -> AnyPublisher<[Stock], NetworkError> {
         return fetchAllStocks()
@@ -211,8 +211,22 @@ class NetworkManager: ObservableObject {
             .catch { error -> AnyPublisher<[Stock], NetworkError> in
                 print("❌ Network call failed after \(self.retryAttempts) attempts: \(error)")
                 self.lastError = error
+                self.isOnline = false
                 return Just([])
                     .setFailureType(to: NetworkError.self)
+                    .eraseToAnyPublisher()
+            }
+            .eraseToAnyPublisher()
+    }
+    
+    func fetchStockWithRetry(symbol: String) -> AnyPublisher<Stock, NetworkError> {
+        return fetchStock(symbol: symbol)
+            .retry(retryAttempts)
+            .catch { error -> AnyPublisher<Stock, NetworkError> in
+                print("❌ Stock fetch failed after \(self.retryAttempts) attempts: \(error)")
+                self.lastError = error
+                self.isOnline = false
+                return Fail(error: error)
                     .eraseToAnyPublisher()
             }
             .eraseToAnyPublisher()

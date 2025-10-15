@@ -192,16 +192,46 @@ class TradeViewModel: BaseViewModel {
     }
     
     private func validateTrade() {
+        // Clear previous errors
+        clearError()
+        
+        guard !quantity.isEmpty else {
+            canExecuteTrade = false
+            return
+        }
+        
+        // Validate quantity is numeric and positive
         guard let quantityInt = Int(quantity), quantityInt > 0 else {
+            errorMessage = "Please enter a valid quantity (positive number)"
+            canExecuteTrade = false
+            return
+        }
+        
+        // Validate quantity is not too large
+        guard quantityInt <= 10000 else {
+            errorMessage = "Maximum quantity allowed is 10,000 shares"
             canExecuteTrade = false
             return
         }
         
         switch tradeType {
         case .buy:
-            canExecuteTrade = true // For now, assume unlimited buying power
+            // Validate total cost is reasonable (prevent accidental large purchases)
+            let totalCost = Double(quantityInt) * currentPrice
+            guard totalCost <= 1000000 else { // $1M limit
+                errorMessage = "Maximum purchase amount is $1,000,000"
+                canExecuteTrade = false
+                return
+            }
+            canExecuteTrade = true
+            
         case .sell:
-            canExecuteTrade = availableQuantity >= quantityInt
+            guard availableQuantity >= quantityInt else {
+                errorMessage = "Insufficient shares. You own \(availableQuantity) shares"
+                canExecuteTrade = false
+                return
+            }
+            canExecuteTrade = true
         }
     }
     

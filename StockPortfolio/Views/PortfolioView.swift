@@ -10,10 +10,15 @@ import SwiftUI
 struct PortfolioView: View {
     @StateObject private var viewModel = PortfolioViewModel()
     @State private var showingTradeView = false
+    @State private var showingErrorAlert = false
+    @State private var errorToShow: Error?
     
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
+                // Offline Indicator
+                OfflineIndicatorView()
+                
                 // Portfolio Summary Header
                 portfolioSummaryHeader
                 
@@ -39,6 +44,35 @@ struct PortfolioView: View {
             }
             .sheet(isPresented: $showingTradeView) {
                 TradeView()
+            }
+            .onChange(of: viewModel.errorMessage) { errorMessage in
+                if let errorMessage = errorMessage {
+                    errorToShow = NSError(domain: "PortfolioError", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMessage])
+                    showingErrorAlert = true
+                }
+            }
+            .overlay {
+                if showingErrorAlert, let error = errorToShow {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+                            .onTapGesture {
+                                showingErrorAlert = false
+                            }
+                        
+                        ErrorAlertView(
+                            error: error,
+                            onRetry: {
+                                viewModel.refreshPortfolio()
+                            },
+                            onDismiss: {
+                                showingErrorAlert = false
+                                viewModel.clearError()
+                            }
+                        )
+                        .padding()
+                    }
+                }
             }
         }
     }
