@@ -38,31 +38,38 @@ enum NetworkError: Error, LocalizedError {
 }
 
 class NetworkManager: ObservableObject {
+    // MARK: - Singleton Pattern
     static let shared = NetworkManager()
     
     @Published var isOnline = true
     @Published var lastError: NetworkError?
     
+    // MARK: - Configuration
     private let timeoutInterval: TimeInterval = 5.0
     private let retryAttempts = 3
     private let baseDelay: TimeInterval = 1.0
     
-    private init() {}
+    // MARK: - API Configuration (Future: Real API endpoints)
+    private let baseURL = "https://api.stockport.com" // Future: Real API base URL
+    private let apiKey = "mock_api_key" // Future: Real API key
+    
+    // MARK: - Environment Configuration
+    private let useMockData = true // Set to false when ready for real API calls
+    
+    private init() {
+        // Initialize singleton
+        print("🚀 NetworkManager singleton initialized")
+        print("📡 Using \(useMockData ? "Mock" : "Real") API data")
+    }
     
     // MARK: - Public API
     
     func fetchAllStocks() -> AnyPublisher<[Stock], NetworkError> {
-        return performNetworkCall { [weak self] in
-            self?.loadMockStocksData()
+        if useMockData {
+            return fetchMockStocks()
+        } else {
+            return fetchRealStocks()
         }
-        .decode(type: [Stock].self, decoder: JSONDecoder())
-        .mapError { error in
-            if error is DecodingError {
-                return NetworkError.decodingError
-            }
-            return NetworkError.unknownError
-        }
-        .eraseToAnyPublisher()
     }
     
     func fetchStock(symbol: String) -> AnyPublisher<Stock, NetworkError> {
@@ -86,9 +93,55 @@ class NetworkManager: ObservableObject {
             .eraseToAnyPublisher()
     }
     
+    // MARK: - Mock API Implementation
+    
+    private func fetchMockStocks() -> AnyPublisher<[Stock], NetworkError> {
+        return performMockNetworkCall { [weak self] in
+            self?.loadMockStocksData()
+        }
+        .decode(type: [Stock].self, decoder: JSONDecoder())
+        .mapError { error in
+            if error is DecodingError {
+                return NetworkError.decodingError
+            }
+            return NetworkError.unknownError
+        }
+        .eraseToAnyPublisher()
+    }
+    
+    // MARK: - Real API Implementation (Future)
+    
+    private func fetchRealStocks() -> AnyPublisher<[Stock], NetworkError> {
+        // TODO: Implement real API calls
+        // This is where you'll add real HTTP requests to your backend
+        // Example implementation:
+        /*
+        let url = URL(string: "\(baseURL)/api/stocks")!
+        var request = URLRequest(url: url)
+        request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        return URLSession.shared.dataTaskPublisher(for: request)
+            .map(\.data)
+            .decode(type: [Stock].self, decoder: JSONDecoder())
+            .mapError { error in
+                if error is DecodingError {
+                    return NetworkError.decodingError
+                }
+                return NetworkError.networkError(error.localizedDescription)
+            }
+            .eraseToAnyPublisher()
+        */
+        
+        // For now, return empty array
+        return Just([])
+            .setFailureType(to: NetworkError.self)
+            .eraseToAnyPublisher()
+    }
+    
     // MARK: - Network Simulation
     
-    private func performNetworkCall<T>(dataProvider: @escaping () -> T?) -> AnyPublisher<Data, NetworkError> {
+    private func performMockNetworkCall<T>(dataProvider: @escaping () -> T?) -> AnyPublisher<Data, NetworkError> {
         return Future<Data, NetworkError> { [weak self] promise in
             guard let self = self else {
                 promise(.failure(.unknownError))

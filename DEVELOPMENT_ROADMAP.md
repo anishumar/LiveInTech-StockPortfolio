@@ -12,6 +12,7 @@ A comprehensive guide for building the StockPort SwiftUI app incrementally with 
 - **Combine** for reactive programming
 - **UserDefaults** for local persistence
 - **Mock data** for development and testing
+- **Singleton Pattern** for NetworkManager (easy API migration)
 
 ---
 
@@ -303,17 +304,60 @@ The app includes `Resources/stocks.json` with 10 sample stocks:
 
 ---
 
+## Singleton Pattern & API Migration Strategy
+
+### NetworkManager Singleton
+The `NetworkManager` uses a singleton pattern to centralize all network operations:
+
+```swift
+class NetworkManager: ObservableObject {
+    static let shared = NetworkManager()
+    
+    // Environment Configuration
+    private let useMockData = true // Set to false for real API calls
+    
+    func fetchAllStocks() -> AnyPublisher<[Stock], NetworkError> {
+        if useMockData {
+            return fetchMockStocks()
+        } else {
+            return fetchRealStocks()
+        }
+    }
+}
+```
+
+### Easy API Migration
+To switch from mock data to real API calls:
+
+1. **Change Environment Flag**: Set `useMockData = false`
+2. **Implement Real API**: Update `fetchRealStocks()` method
+3. **Configure Endpoints**: Update `baseURL` and `apiKey`
+4. **No Other Changes**: All ViewModels and Views remain unchanged
+
+### Future API Implementation Template
+```swift
+private func fetchRealStocks() -> AnyPublisher<[Stock], NetworkError> {
+    let url = URL(string: "\(baseURL)/api/stocks")!
+    var request = URLRequest(url: url)
+    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+    
+    return URLSession.shared.dataTaskPublisher(for: request)
+        .map(\.data)
+        .decode(type: [Stock].self, decoder: JSONDecoder())
+        .mapError { /* Handle errors */ }
+        .eraseToAnyPublisher()
+}
+```
+
 ## Known Limitations
 
-### Current (Step 1)
-- No real network calls (mock data only)
-- Basic UI without advanced navigation
-- Local persistence only (no cloud sync)
-
-### Planned Limitations
+### Current (Step 2)
 - Mock data only (no real stock API integration)
 - Local persistence only (no cloud sync)
 - Simulated network delays for testing purposes
+
+### Planned Limitations
+- Local persistence only (no cloud sync)
 - Basic chart implementation (if Charts framework unavailable)
 
 ---
@@ -332,6 +376,8 @@ The app includes `Resources/stocks.json` with 10 sample stocks:
 - Combine for reactive programming
 - SwiftUI best practices
 - Accessibility considerations
+- Singleton pattern for centralized network operations
+- Easy API migration with environment flags
 
 ### Testing Requirements
 - At least one unit test per ViewModel
