@@ -4,69 +4,111 @@
     "name": "Apple Inc.",
     "price": 174.26,
     "dailyChange": -0.42,
-    "chartPoints": [170, 171, 172, 174, 174.26]
+    "chartPoints": [170, 171, 172, 174, 174.26],
+    "category": "Equity"
   },
   {
     "symbol": "TSLA",
     "name": "Tesla, Inc.",
     "price": 258.14,
     "dailyChange": 2.14,
-    "chartPoints": [240, 245, 250, 255, 258.14]
+    "chartPoints": [240, 245, 250, 255, 258.14],
+    "category": "Equity"
   },
   {
     "symbol": "GOOGL",
     "name": "Alphabet Inc.",
     "price": 135.50,
     "dailyChange": 1.8,
-    "chartPoints": [130, 132, 133, 134, 135.5]
+    "chartPoints": [130, 132, 133, 134, 135.5],
+    "category": "Equity"
   },
   {
     "symbol": "MSFT",
     "name": "Microsoft Corporation",
     "price": 378.85,
     "dailyChange": -1.25,
-    "chartPoints": [375, 376, 378, 380, 378.85]
+    "chartPoints": [375, 376, 378, 380, 378.85],
+    "category": "Equity"
   },
   {
     "symbol": "AMZN",
     "name": "Amazon.com, Inc.",
     "price": 145.30,
     "dailyChange": 0.85,
-    "chartPoints": [140, 142, 144, 145, 145.30]
+    "chartPoints": [140, 142, 144, 145, 145.30],
+    "category": "Equity"
   },
   {
     "symbol": "META",
     "name": "Meta Platforms, Inc.",
     "price": 312.45,
     "dailyChange": 3.20,
-    "chartPoints": [305, 308, 310, 312, 312.45]
+    "chartPoints": [305, 308, 310, 312, 312.45],
+    "category": "Equity"
   },
   {
     "symbol": "NVDA",
     "name": "NVIDIA Corporation",
     "price": 875.20,
     "dailyChange": -5.80,
-    "chartPoints": [870, 875, 880, 875, 875.20]
+    "chartPoints": [870, 875, 880, 875, 875.20],
+    "category": "Equity"
   },
   {
     "symbol": "NFLX",
     "name": "Netflix, Inc.",
     "price": 485.75,
     "dailyChange": 2.15,
-    "chartPoints": [480, 482, 484, 485, 485.75]
+    "chartPoints": [480, 482, 484, 485, 485.75],
+    "category": "Equity"
   },
   {
     "symbol": "AMD",
     "name": "Advanced Micro Devices, Inc.",
     "price": 128.90,
     "dailyChange": -1.10,
-    "chartPoints": [125, 127, 130, 128, 128.90]
+    "chartPoints": [125, 127, 130, 128, 128.90],
+    "category": "Equity"
   },
   {
     "symbol": "INTC",
     "name": "Intel Corporation",
     "price": 42.15,
     "dailyChange": 0.25,
-    "chartPoints": [40, 41, 42, 42, 42.15]
+    "chartPoints": [40, 41, 42, 42, 42.15],
+    "category": "Equity"
+  },
+  {
+    "symbol": "BND",
+    "name": "Vanguard Total Bond Market ETF",
+    "price": 78.45,
+    "dailyChange": 0.12,
+    "chartPoints": [78.2, 78.3, 78.4, 78.35, 78.45],
+    "category": "Debt"
+  },
+  {
+    "symbol": "AGG",
+    "name": "iShares Core U.S. Aggregate Bond ETF",
+    "price": 95.67,
+    "dailyChange": -0.08,
+    "chartPoints": [95.8, 95.7, 95.6, 95.65, 95.67],
+    "category": "Debt"
+  },
+  {
+    "symbol": "VTI",
+    "name": "Vanguard Total Stock Market ETF",
+    "price": 245.32,
+    "dailyChange": 1.45,
+    "chartPoints": [243.0, 244.5, 243.8, 245.1, 245.32],
+    "category": "Hybrid"
+  },
+  {
+    "symbol": "SPY",
+    "name": "SPDR S&P 500 ETF Trust",
+    "price": 456.78,
+    "dailyChange": 2.34,
+    "chartPoints": [454.0, 455.5, 454.8, 456.2, 456.78],
+    "category": "Hybrid"
   }
 ]

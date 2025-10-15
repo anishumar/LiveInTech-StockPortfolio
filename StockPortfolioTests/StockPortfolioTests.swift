@@ -712,4 +712,145 @@ class UIComponentTests: XCTestCase {
         XCTAssertEqual(chartPoints.first, 174.26)
         XCTAssertEqual(chartPoints.last, 174.68, accuracy: 0.01)
     }
+    
+    // MARK: - Analytics Tests
+    
+    func testPortfolioMetricsCalculation() {
+        // Test portfolio metrics calculation
+        let metrics = PortfolioMetrics(
+            totalInvested: 10000.0,
+            currentValue: 10500.0,
+            totalGainLoss: 500.0,
+            totalGainLossPercentage: 5.0,
+            roi: 5.0,
+            annualizedReturn: 5.0,
+            riskScore: 6.5,
+            diversificationScore: 7.2
+        )
+        
+        XCTAssertEqual(metrics.formattedTotalInvested, "$10000.00")
+        XCTAssertEqual(metrics.formattedCurrentValue, "$10500.00")
+        XCTAssertEqual(metrics.formattedTotalGainLoss, "+500.00")
+        XCTAssertEqual(metrics.formattedTotalGainLossPercentage, "+5.00%")
+        XCTAssertEqual(metrics.formattedROI, "+5.00%")
+        XCTAssertEqual(metrics.formattedRiskScore, "6.5/10")
+        XCTAssertEqual(metrics.formattedDiversificationScore, "7.2/10")
+        XCTAssertTrue(metrics.isPositive)
+        XCTAssertEqual(metrics.riskLevel, "High")
+        XCTAssertEqual(metrics.diversificationLevel, "Good")
+    }
+    
+    func testCategoryDistribution() {
+        // Test category distribution
+        let distribution = CategoryDistribution(
+            category: .equity,
+            value: 7500.0,
+            percentage: 75.0,
+            count: 5
+        )
+        
+        XCTAssertEqual(distribution.formattedValue, "$7500.00")
+        XCTAssertEqual(distribution.formattedPercentage, "75.0%")
+        XCTAssertEqual(distribution.category.rawValue, "Equity")
+        XCTAssertEqual(distribution.category.color, "blue")
+        XCTAssertEqual(distribution.category.icon, "chart.line.uptrend.xyaxis")
+    }
+    
+    func testPortfolioPerformance() {
+        // Test portfolio performance
+        let performance = PortfolioPerformance(
+            date: Date(),
+            value: 10500.0,
+            invested: 10000.0,
+            gainLoss: 500.0,
+            gainLossPercentage: 5.0
+        )
+        
+        XCTAssertEqual(performance.formattedValue, "$10500.00")
+        XCTAssertEqual(performance.formattedInvested, "$10000.00")
+        XCTAssertEqual(performance.formattedGainLoss, "+500.00")
+        XCTAssertEqual(performance.formattedGainLossPercentage, "+5.00%")
+        XCTAssertTrue(performance.isPositive)
+    }
+    
+    func testAssetCategoryEnum() {
+        // Test asset category enum
+        let categories = AssetCategory.allCases
+        XCTAssertEqual(categories.count, 4)
+        XCTAssertTrue(categories.contains(.equity))
+        XCTAssertTrue(categories.contains(.debt))
+        XCTAssertTrue(categories.contains(.hybrid))
+        XCTAssertTrue(categories.contains(.other))
+        
+        // Test category properties
+        XCTAssertEqual(AssetCategory.equity.color, "blue")
+        XCTAssertEqual(AssetCategory.debt.color, "green")
+        XCTAssertEqual(AssetCategory.hybrid.color, "orange")
+        XCTAssertEqual(AssetCategory.other.color, "purple")
+        
+        XCTAssertEqual(AssetCategory.equity.icon, "chart.line.uptrend.xyaxis")
+        XCTAssertEqual(AssetCategory.debt.icon, "shield.checkered")
+        XCTAssertEqual(AssetCategory.hybrid.icon, "circle.hexagongrid")
+        XCTAssertEqual(AssetCategory.other.icon, "questionmark.circle")
+    }
+    
+    func testStockCategoryIntegration() {
+        // Test stock category integration
+        let stock = Stock(
+            symbol: "AAPL",
+            name: "Apple Inc.",
+            price: 174.26,
+            dailyChange: -0.42,
+            chartPoints: [170, 171, 172, 174, 174.26],
+            category: .equity
+        )
+        
+        XCTAssertEqual(stock.category, .equity)
+        XCTAssertEqual(stock.symbol, "AAPL")
+        XCTAssertEqual(stock.name, "Apple Inc.")
+    }
+    
+    func testPortfolioAnalyticsViewModel() {
+        // Test portfolio analytics view model
+        let viewModel = PortfolioAnalyticsViewModel()
+        
+        // Test initial state
+        XCTAssertNil(viewModel.portfolioMetrics)
+        XCTAssertTrue(viewModel.categoryDistribution.isEmpty)
+        XCTAssertTrue(viewModel.performanceHistory.isEmpty)
+        XCTAssertFalse(viewModel.isLoading)
+        XCTAssertNil(viewModel.errorMessage)
+        XCTAssertFalse(viewModel.hasAnalyticsData)
+        
+        // Test computed properties
+        XCTAssertNil(viewModel.topPerformingCategory)
+        XCTAssertNil(viewModel.worstPerformingCategory)
+        XCTAssertEqual(viewModel.portfolioHealthScore, 0)
+        XCTAssertEqual(viewModel.formattedHealthScore, "0.0/10")
+        XCTAssertEqual(viewModel.healthLevel, "Poor")
+    }
+    
+    func testPortfolioHealthScoreCalculation() {
+        // Test portfolio health score calculation
+        let viewModel = PortfolioAnalyticsViewModel()
+        
+        // Test with no data
+        XCTAssertEqual(viewModel.portfolioHealthScore, 0)
+        
+        // Test with positive metrics
+        viewModel.portfolioMetrics = PortfolioMetrics(
+            totalInvested: 10000.0,
+            currentValue: 10500.0,
+            totalGainLoss: 500.0,
+            totalGainLossPercentage: 5.0,
+            roi: 5.0,
+            annualizedReturn: 5.0,
+            riskScore: 4.0,
+            diversificationScore: 8.0
+        )
+        
+        let healthScore = viewModel.portfolioHealthScore
+        XCTAssertGreaterThan(healthScore, 0)
+        XCTAssertLessThanOrEqual(healthScore, 10)
+    }
 }

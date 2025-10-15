@@ -190,21 +190,103 @@ A comprehensive guide for building the StockPort SwiftUI app incrementally with 
 
 ---
 
-### 📋 Step 6 — Polish, Charts, Transaction History (PLANNED)
+### ✅ Step 6 — Polish, Charts, Transaction History (COMPLETED)
 **Commit:** `feat(ui): chart + history + polish`
 
-**What to deliver:**
-- Optional: simple stock line chart using `Charts` (or a minimal custom line view if unavailable)
+**What was delivered:**
+- Custom stock line chart implementation with gradients and fill areas
 - Transaction history view listing previous buys/sells with timestamps
 - UI polish: SF Symbols, gradients, light/dark support, accessible font sizes
-- Add unit tests covering new components
+- Enhanced portfolio view with mini charts and improved navigation
+- Comprehensive unit tests for new components
 
 **How to test:**
-- Open a stock detail, view its chart
-- Go to Transaction history and confirm entries appear after trades
+- View portfolio with mini charts for each stock
+- Access transaction history via clock icon in portfolio
+- Filter transactions by buy/sell type
+- Test chart rendering with different stock data
 
 **Acceptance criteria:**
-- Chart renders and history shows correct data
+- Chart renders correctly with proper colors and scaling
+- Transaction history shows all trades with proper formatting
+- UI polish enhances user experience without breaking functionality
+
+---
+
+## 🚀 **Step 7 — Advanced Portfolio Analytics & Enhanced UX (PLANNED)**
+
+### Overview
+Enhance the portfolio with advanced analytics, better financial insights, and improved user experience.
+
+### 📋 Step 7.1 — Portfolio Analytics Dashboard
+**Commit:** `feat(analytics): portfolio dashboard with financial insights`
+
+**What to deliver:**
+- **Current Amount vs Total Invested**: Clear display of current portfolio value vs total amount invested
+- **Portfolio Performance Graph**: Historical portfolio value tracking over time
+- **Category Distribution**: Equity, Debt, Hybrid, and Other asset class breakdown
+- **Performance Metrics**: ROI, annualized returns, and risk metrics
+- **Analytics View**: Dedicated analytics tab with comprehensive insights
+
+**Implementation Plan:**
+1. Create `PortfolioAnalyticsViewModel` for calculations
+2. Add `PortfolioAnalyticsView` with dashboard layout
+3. Implement historical data tracking in `PortfolioStore`
+4. Create category classification system for stocks
+5. Add performance calculation algorithms
+
+**Tests:**
+- Unit tests for analytics calculations
+- UI tests for dashboard interactions
+- Performance tests for large datasets
+
+---
+
+### 📋 Step 7.2 — Enhanced UX & Navigation
+**Commit:** `feat(ux): enhanced navigation and user experience`
+
+**What to deliver:**
+- **Tab-based Navigation**: Portfolio, Analytics, Trade, History tabs
+- **Quick Actions**: Swipe gestures and quick trade buttons
+- **Search & Filter**: Advanced stock search with filters
+- **Notifications**: Price alerts and portfolio updates
+- **Settings**: User preferences and customization options
+
+**Implementation Plan:**
+1. Redesign main navigation with TabView
+2. Add swipe gestures for quick actions
+3. Implement advanced search functionality
+4. Create notification system for price alerts
+5. Add settings and preferences management
+
+**Tests:**
+- UI tests for navigation flows
+- Gesture recognition tests
+- Search functionality tests
+
+---
+
+### 📋 Step 7.3 — Advanced Features
+**Commit:** `feat(advanced): watchlist, alerts, and portfolio insights`
+
+**What to deliver:**
+- **Watchlist**: Track stocks without owning them
+- **Price Alerts**: Notifications for price movements
+- **Portfolio Insights**: AI-powered recommendations and insights
+- **Export Features**: CSV export of portfolio and transactions
+- **Dark Mode**: Enhanced dark mode with custom themes
+
+**Implementation Plan:**
+1. Create watchlist functionality
+2. Implement price alert system
+3. Add portfolio insights and recommendations
+4. Create export functionality
+5. Enhance dark mode with custom themes
+
+**Tests:**
+- Watchlist functionality tests
+- Alert system tests
+- Export feature tests
 
 ---
 

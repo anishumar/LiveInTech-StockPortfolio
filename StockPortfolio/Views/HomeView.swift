@@ -21,13 +21,21 @@ struct HomeView: View {
                 }
                 .tag(0)
             
+            // Analytics Tab
+            PortfolioAnalyticsView()
+                .tabItem {
+                    Image(systemName: "chart.bar.xaxis")
+                    Text("Analytics")
+                }
+                .tag(1)
+            
             // Debug Tab (remove in production)
             NetworkTestView()
                 .tabItem {
                     Image(systemName: "wrench.and.screwdriver")
                     Text("Debug")
                 }
-                .tag(1)
+                .tag(2)
         }
         .overlay(alignment: .topTrailing) {
             // Logout Button
