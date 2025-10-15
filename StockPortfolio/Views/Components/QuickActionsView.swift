@@ -8,9 +8,7 @@
 import SwiftUI
 
 struct QuickActionsView: View {
-    @State private var showingWatchlistView = false
     @State private var showingSettingsView = false
-    @State private var showingPriceAlerts = false
     @State private var showingInsights = false
     
     var body: some View {
@@ -30,20 +28,6 @@ struct QuickActionsView: View {
                 GridItem(.flexible())
             ], spacing: 12) {
                 QuickActionCard(
-                    title: "Watchlist",
-                    icon: "eye.circle.fill",
-                    color: .orange,
-                    action: { showingWatchlistView = true }
-                )
-                
-                QuickActionCard(
-                    title: "Price Alerts",
-                    icon: "bell.circle.fill",
-                    color: .red,
-                    action: { showingPriceAlerts = true }
-                )
-                
-                QuickActionCard(
                     title: "Insights",
                     icon: "brain.head.profile",
                     color: .purple,
@@ -58,12 +42,6 @@ struct QuickActionsView: View {
                 )
             }
             .padding(.horizontal)
-        }
-        .sheet(isPresented: $showingWatchlistView) {
-            WatchlistView()
-        }
-        .sheet(isPresented: $showingPriceAlerts) {
-            PriceAlertsView()
         }
         .sheet(isPresented: $showingInsights) {
             PortfolioInsightsView()

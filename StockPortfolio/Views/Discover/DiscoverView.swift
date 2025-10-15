@@ -10,6 +10,8 @@ import SwiftUI
 struct DiscoverView: View {
     @StateObject private var viewModel = AdvancedSearchViewModel()
     @State private var showingFilters = false
+    @State private var showingWatchlist = false
+    @State private var showingPriceAlerts = false
     
     var body: some View {
         NavigationView {
@@ -33,15 +35,35 @@ struct DiscoverView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        withAnimation(.easeInOut(duration: 0.3)) {
-                            showingFilters.toggle()
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            showingWatchlist = true
+                        }) {
+                            Image(systemName: "eye")
                         }
-                    }) {
-                        Image(systemName: showingFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                        
+                        Button(action: {
+                            showingPriceAlerts = true
+                        }) {
+                            Image(systemName: "bell")
+                        }
+                        
+                        Button(action: {
+                            withAnimation(.easeInOut(duration: 0.3)) {
+                                showingFilters.toggle()
+                            }
+                        }) {
+                            Image(systemName: showingFilters ? "line.3.horizontal.decrease.circle.fill" : "line.3.horizontal.decrease.circle")
+                        }
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showingWatchlist) {
+            WatchlistView()
+        }
+        .sheet(isPresented: $showingPriceAlerts) {
+            PriceAlertsView()
         }
         .onAppear {
             viewModel.loadAllStocks()
