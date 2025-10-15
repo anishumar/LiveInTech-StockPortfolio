@@ -37,18 +37,10 @@ struct PortfolioAnalyticsView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    HStack(spacing: 16) {
-                        Button(action: {
-                            showingSettings = true
-                        }) {
-                            Image(systemName: "gearshape")
-                        }
-                        
-                        Button(action: {
-                            viewModel.refreshAnalytics()
-                        }) {
-                            Image(systemName: "arrow.clockwise")
-                        }
+                    Button(action: {
+                        showingSettings = true
+                    }) {
+                        Image(systemName: "gearshape")
                     }
                 }
             }
