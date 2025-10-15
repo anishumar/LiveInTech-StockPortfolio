@@ -10,10 +10,15 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image(systemName: "globe")
+            Image(systemName: "chart.line.uptrend.xyaxis")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Hello, world!")
+            Text("Welcome to StockPort!")
+                .font(.title2)
+                .fontWeight(.semibold)
+            Text("Your portfolio will be here")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
         }
         .padding()
     }
