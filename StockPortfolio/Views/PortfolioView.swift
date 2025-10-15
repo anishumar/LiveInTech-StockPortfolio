@@ -134,7 +134,7 @@ struct PortfolioView: View {
         .padding(.vertical, 24)
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color(.systemGray6))
+                .fill(Color(.systemBackground))
                 .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         )
         .padding(.horizontal, 16)
