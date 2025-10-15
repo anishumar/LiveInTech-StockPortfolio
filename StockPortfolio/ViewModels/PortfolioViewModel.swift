@@ -62,19 +62,25 @@ class PortfolioViewModel: BaseViewModel {
     // MARK: - Public Methods
     
     func refreshPortfolio() {
-        isRefreshing = true
+        DispatchQueue.main.async { [weak self] in
+            self?.isRefreshing = true
+        }
         
         networkManager.fetchAllStocks()
             .receive(on: DispatchQueue.main)
             .sink(
                 receiveCompletion: { [weak self] completion in
-                    self?.isRefreshing = false
-                    if case .failure(let error) = completion {
-                        self?.handleError(error)
+                    DispatchQueue.main.async {
+                        self?.isRefreshing = false
+                        if case .failure(let error) = completion {
+                            self?.handleError(error)
+                        }
                     }
                 },
                 receiveValue: { [weak self] stocks in
-                    self?.updatePortfolioWithStocks(stocks)
+                    DispatchQueue.main.async {
+                        self?.updatePortfolioWithStocks(stocks)
+                    }
                 }
             )
             .store(in: &self.cancellables)
@@ -114,6 +120,11 @@ class PortfolioViewModel: BaseViewModel {
     }
     
     private func updatePortfolioWithStocks(_ stocks: [Stock]) {
+        guard !stocks.isEmpty else {
+            print("⚠️ No stocks received during refresh")
+            return
+        }
+        
         let portfolioItems = portfolioStore.portfolioItems
         var updatedPortfolioStocks: [PortfolioStock] = []
         
@@ -140,8 +151,11 @@ class PortfolioViewModel: BaseViewModel {
             }
         }
         
-        portfolioStocks = updatedPortfolioStocks
-        calculateTotals()
+        // Update on main thread to prevent UI crashes
+        DispatchQueue.main.async { [weak self] in
+            self?.portfolioStocks = updatedPortfolioStocks
+            self?.calculateTotals()
+        }
     }
     
     private func calculateTotals() {
