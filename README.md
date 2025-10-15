@@ -41,6 +41,20 @@ The app is built with:
 - **Analytics** - Charts and insights about your portfolio performance
 - **Settings** - Manage your account and export data
 
+## Screenshots
+
+### Portfolio View
+![Portfolio Dashboard](screenshots/portfolio.png)
+*Your main dashboard showing total portfolio value and individual stock holdings*
+
+### Discover & Search
+![Stock Discovery](screenshots/discover.png)
+*Search for stocks, view watchlist, and set price alerts*
+
+### Analytics Dashboard
+![Portfolio Analytics](screenshots/analytics.png)
+*Detailed analytics with performance charts and portfolio insights*
+
 ## Testing
 
 I've included both unit tests and UI tests. You can run them in Xcode or use the command line:
