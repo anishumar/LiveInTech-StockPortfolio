@@ -19,10 +19,6 @@ struct PortfolioView: View {
                 // Offline Indicator
                 OfflineIndicatorView()
                 
-                // Quick Actions
-                QuickActionsView()
-                    .padding(.vertical, 8)
-                
                 // Portfolio Summary Header
                 portfolioSummaryHeader
                 
