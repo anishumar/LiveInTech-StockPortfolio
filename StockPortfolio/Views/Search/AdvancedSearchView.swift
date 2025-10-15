@@ -87,7 +87,7 @@ struct AdvancedSearchView: View {
                     }
                 }
                 .font(.subheadline)
-                .foregroundColor(.blue)
+                .foregroundColor(Color.blue)
             }
             .padding(.horizontal)
             
@@ -146,7 +146,7 @@ struct AdvancedSearchView: View {
                     .foregroundColor(.secondary)
                 
                 Slider(value: $viewModel.minPrice, in: 0...1000, step: 10)
-                    .accentColor(.blue)
+                    .accentColor(Color.blue)
                 
                 Text("$\(Int(viewModel.maxPrice))")
                     .font(.caption)
@@ -181,7 +181,7 @@ struct AdvancedSearchView: View {
                 FilterChip(
                     title: "All",
                     isSelected: viewModel.showAll,
-                    color: .blue
+                    color: Color.blue
                 ) {
                     viewModel.showAll = true
                 }

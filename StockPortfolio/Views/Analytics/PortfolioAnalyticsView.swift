@@ -193,7 +193,7 @@ struct PortfolioAnalyticsView: View {
                         title: "Total Invested",
                         value: metrics.formattedTotalInvested,
                         icon: "dollarsign.circle.fill",
-                        color: .blue
+                        color: Color.blue
                     )
                     
                     MetricCard(

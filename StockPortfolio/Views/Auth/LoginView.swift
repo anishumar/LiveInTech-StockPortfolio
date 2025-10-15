@@ -20,7 +20,7 @@ struct LoginView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "chart.line.uptrend.xyaxis")
                         .font(.system(size: 60))
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color.blue)
                     
                     Text("Welcome Back")
                         .font(.largeTitle)
@@ -110,7 +110,7 @@ struct LoginView: View {
                     Button("Sign Up") {
                         showingSignup = true
                     }
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                 }
                 .padding(.bottom, 20)
             }

@@ -15,18 +15,20 @@ struct PortfolioView: View {
     
     var body: some View {
         NavigationView {
-            VStack(spacing: 0) {
-                // Offline Indicator
-                OfflineIndicatorView()
-                
-                // Portfolio Summary Header
-                portfolioSummaryHeader
-                
-                // Portfolio Content
-                if viewModel.hasPortfolioItems {
-                    portfolioContent
-                } else {
-                    emptyPortfolioView
+            ScrollView {
+                VStack(spacing: 0) {
+                    // Offline Indicator
+                    OfflineIndicatorView()
+                    
+                    // Portfolio Summary Header
+                    portfolioSummaryHeader
+                    
+                    // Portfolio Content
+                    if viewModel.hasPortfolioItems {
+                        portfolioContent
+                    } else {
+                        emptyPortfolioView
+                    }
                 }
             }
             .navigationTitle("Portfolio")
@@ -36,7 +38,7 @@ struct PortfolioView: View {
                     Button("Trade") {
                         showingTradeView = true
                     }
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                 }
             }
             .refreshable {
@@ -80,12 +82,13 @@ struct PortfolioView: View {
     // MARK: - Portfolio Summary Header
     
     private var portfolioSummaryHeader: some View {
-        VStack(spacing: 16) {
-            // Total Value
-            VStack(spacing: 4) {
+        VStack(spacing: 20) {
+            // Total Value Section
+            VStack(spacing: 8) {
                 HStack {
                     Image(systemName: "chart.line.uptrend.xyaxis")
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color.blue)
+                        .font(.title3)
                     Text("Total Portfolio Value")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
@@ -97,11 +100,12 @@ struct PortfolioView: View {
                     .foregroundColor(.primary)
             }
             
-            // Gain/Loss
+            // Gain/Loss Section
             if viewModel.hasPortfolioItems {
                 HStack(spacing: 8) {
                     Image(systemName: viewModel.isPositiveGain ? "arrow.up.right.circle.fill" : "arrow.down.right.circle.fill")
                         .foregroundColor(viewModel.isPositiveGain ? .green : .red)
+                        .font(.title3)
                     
                     Text(viewModel.formattedTotalGainLoss)
                         .font(.title2)
@@ -113,8 +117,6 @@ struct PortfolioView: View {
                         .fontWeight(.semibold)
                         .foregroundColor(viewModel.isPositiveGain ? .green : .red)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
             }
             
             // Refresh Status
@@ -126,18 +128,23 @@ struct PortfolioView: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
             }
         }
-        .padding()
+        .padding(.horizontal, 20)
+        .padding(.vertical, 24)
+        .background(
+            RoundedRectangle(cornerRadius: 16)
+                .fill(Color(.systemGray6))
+                .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+        )
+        .padding(.horizontal, 16)
         .animation(.easeInOut(duration: 0.3), value: viewModel.totalPortfolioValue)
     }
     
     // MARK: - Portfolio Content
     
     private var portfolioContent: some View {
-        List {
+        LazyVStack(spacing: 0) {
             ForEach(viewModel.portfolioStocks, id: \.symbol) { stock in
                 NavigationLink(destination: TradeView()) {
                     PortfolioStockRowView(stock: stock)
@@ -153,7 +160,7 @@ struct PortfolioView: View {
                     Button("Trade") {
                         showingTradeView = true
                     }
-                    .tint(.blue)
+                    .tint(Color.blue)
                 }
                 .swipeActions(edge: .leading, allowsFullSwipe: false) {
                     Button("Buy More") {
@@ -162,9 +169,13 @@ struct PortfolioView: View {
                     }
                     .tint(.green)
                 }
+                
+                if stock.symbol != viewModel.portfolioStocks.last?.symbol {
+                    Divider()
+                        .padding(.horizontal)
+                }
             }
         }
-        .listStyle(PlainListStyle())
         .animation(.easeInOut(duration: 0.3), value: viewModel.portfolioStocks.count)
     }
     
@@ -223,7 +234,7 @@ struct PortfolioStockRowView: View {
     }
     
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 16) {
             // Header Row
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
@@ -295,27 +306,34 @@ struct PortfolioStockRowView: View {
                 }
             }
         }
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color(.systemBackground))
         .onAppear {
             generateStableChartData()
         }
     }
     
     private func generateStableChartData() {
-        // Generate stable chart data based on stock symbol and current price
-        // This ensures the same chart is shown for the same stock
-        let basePrice = stock.currentPrice
-        let change = stock.dailyChange
-        let volatility = abs(change) * 0.3
+        // Generate realistic chart data based on stock symbol and daily change
+        let currentPrice = stock.currentPrice
+        let dailyChange = stock.dailyChange
         
-        // Use stock symbol as seed for consistent random generation
+        // Use stock symbol as seed for consistent generation
         let seed = stock.symbol.hashValue
         var generator = SeededRandomNumberGenerator(seed: UInt64(abs(seed)))
         
+        // Create realistic price movement
+        let volatility = max(abs(dailyChange) * 2, 1.0) // Minimum volatility
+        let startPrice = currentPrice - dailyChange
+        
         chartPoints = (0..<5).map { index in
             let progress = Double(index) / 4.0
-            let randomVariation = (Double.random(in: -1...1, using: &generator) * volatility)
-            return basePrice - (change * progress) + randomVariation
+            let basePrice = startPrice + (dailyChange * progress)
+            
+            // Add some realistic fluctuation
+            let fluctuation = (Double.random(in: -1...1, using: &generator) * volatility * 0.3)
+            return basePrice + fluctuation
         }
     }
 }

@@ -108,7 +108,7 @@ struct PortfolioPerformanceChart: View {
         }
         .stroke(
             LinearGradient(
-                colors: [.blue, .green],
+                colors: [Color.blue, .green],
                 startPoint: .leading,
                 endPoint: .trailing
             ),

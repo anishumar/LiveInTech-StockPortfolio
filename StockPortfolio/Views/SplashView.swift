@@ -14,7 +14,7 @@ struct SplashView: View {
         VStack(spacing: 20) {
             Image(systemName: "chart.line.uptrend.xyaxis")
                 .font(.system(size: 80))
-                .foregroundColor(.blue)
+                .foregroundColor(Color.blue)
                 .scaleEffect(isAnimating ? 1.2 : 1.0)
                 .animation(.easeInOut(duration: 1.0).repeatForever(autoreverses: true), value: isAnimating)
             

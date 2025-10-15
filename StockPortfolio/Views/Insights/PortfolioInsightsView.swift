@@ -97,7 +97,7 @@ struct PortfolioInsightsView: View {
                 InsightSummaryCard(
                     title: "Recommendations",
                     count: viewModel.recommendationCount,
-                    color: .blue
+                    color: Color.blue
                 )
                 
                 InsightSummaryCard(
@@ -226,7 +226,7 @@ struct InsightRowView: View {
                             Text("Recommendation")
                                 .font(.subheadline)
                                 .fontWeight(.medium)
-                                .foregroundColor(.blue)
+                                .foregroundColor(Color.blue)
                             
                             Text(insight.recommendation!)
                                 .font(.subheadline)

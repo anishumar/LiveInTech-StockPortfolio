@@ -84,7 +84,7 @@ struct PriceAlertsView: View {
             SummaryCard(
                 title: "Active",
                 count: viewModel.activeAlertsCount,
-                color: .blue
+                color: Color.blue
             )
             
             SummaryCard(
@@ -187,7 +187,7 @@ struct PriceAlertRowView: View {
             // Toggle Button
             Button(action: onToggle) {
                 Image(systemName: alert.isEnabled ? "bell.fill" : "bell.slash.fill")
-                    .foregroundColor(alert.isEnabled ? .blue : .gray)
+                    .foregroundColor(alert.isEnabled ? Color.blue : .gray)
             }
         }
         .padding(.vertical, 4)

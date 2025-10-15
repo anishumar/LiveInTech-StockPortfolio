@@ -57,7 +57,7 @@ struct SettingsView: View {
             HStack {
                 Image(systemName: "person.circle.fill")
                     .font(.system(size: 50))
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                 
                 VStack(alignment: .leading, spacing: 4) {
                     Text("John Doe")
@@ -89,7 +89,7 @@ struct SettingsView: View {
             // Theme Setting
             HStack {
                 Image(systemName: "paintbrush.fill")
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                     .frame(width: 24)
                 
                 Text("Theme")
@@ -164,7 +164,7 @@ struct SettingsView: View {
             // Portfolio Updates
             HStack {
                 Image(systemName: "chart.line.uptrend.xyaxis")
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                     .frame(width: 24)
                 
                 Text("Portfolio Updates")
@@ -202,7 +202,7 @@ struct SettingsView: View {
             }) {
                 HStack {
                     Image(systemName: "clock.arrow.circlepath")
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color.blue)
                         .frame(width: 24)
                     
                     Text("Transaction History")
@@ -221,7 +221,7 @@ struct SettingsView: View {
             }) {
                 HStack {
                     Image(systemName: "square.and.arrow.up")
-                        .foregroundColor(.blue)
+                        .foregroundColor(Color.blue)
                         .frame(width: 24)
                     
                     Text("Export Data")
@@ -302,7 +302,7 @@ struct SettingsView: View {
         Section {
             HStack {
                 Image(systemName: "info.circle.fill")
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                     .frame(width: 24)
                 
                 Text("Version")

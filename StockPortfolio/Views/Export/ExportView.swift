@@ -110,7 +110,7 @@ struct ExportView: View {
         VStack(spacing: 16) {
             Image(systemName: "square.and.arrow.up")
                 .font(.system(size: 50))
-                .foregroundColor(.blue)
+                .foregroundColor(Color.blue)
             
             Text("Generate Export")
                 .font(.title2)

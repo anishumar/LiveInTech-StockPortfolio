@@ -98,7 +98,7 @@ struct WatchlistView: View {
                 SummaryMetric(
                     title: "Total Value",
                     value: viewModel.totalWatchlistValue,
-                    color: .blue
+                    color: Color.blue
                 )
                 
                 SummaryMetric(
@@ -137,7 +137,7 @@ struct WatchlistView: View {
                     Button("Trade") {
                         // Navigate to trade view
                     }
-                    .tint(.blue)
+                    .tint(Color.blue)
                 }
             }
         }

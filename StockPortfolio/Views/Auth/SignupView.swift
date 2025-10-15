@@ -127,7 +127,7 @@ struct SignupView: View {
                     Button("Sign In") {
                         dismiss()
                     }
-                    .foregroundColor(.blue)
+                    .foregroundColor(Color.blue)
                 }
                 .padding(.bottom, 20)
             }
