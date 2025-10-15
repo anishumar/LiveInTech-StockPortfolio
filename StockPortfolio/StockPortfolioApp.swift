@@ -9,9 +9,18 @@ import SwiftUI
 
 @main
 struct StockPortfolioApp: App {
+    @StateObject private var userSession = UserSession.shared
+    
     var body: some Scene {
         WindowGroup {
-            SplashView()
+            Group {
+                if userSession.isLoggedIn {
+                    HomeView()
+                } else {
+                    LoginView()
+                }
+            }
+            .animation(.easeInOut, value: userSession.isLoggedIn)
         }
     }
 }
