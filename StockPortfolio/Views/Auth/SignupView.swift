@@ -21,7 +21,7 @@ struct SignupView: View {
                 VStack(spacing: 8) {
                     Image(systemName: "person.badge.plus")
                         .font(.system(size: 60))
-                        .foregroundColor(.green)
+                        .foregroundColor(Color.blue)
                     
                     Text("Create Account")
                         .font(.largeTitle)
@@ -101,7 +101,7 @@ struct SignupView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color.green)
+                        .background(Color.blue)
                         .foregroundColor(.white)
                         .cornerRadius(8)
                     }
