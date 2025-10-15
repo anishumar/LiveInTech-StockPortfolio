@@ -13,7 +13,6 @@ struct QuickActionsView: View {
     @State private var showingSettingsView = false
     @State private var showingPriceAlerts = false
     @State private var showingInsights = false
-    @State private var showingExport = false
     
     var body: some View {
         VStack(spacing: 16) {
@@ -60,13 +59,6 @@ struct QuickActionsView: View {
                 )
                 
                 QuickActionCard(
-                    title: "Export",
-                    icon: "square.and.arrow.up.circle.fill",
-                    color: .indigo,
-                    action: { showingExport = true }
-                )
-                
-                QuickActionCard(
                     title: "Settings",
                     icon: "gearshape.circle.fill",
                     color: .gray,
@@ -86,9 +78,6 @@ struct QuickActionsView: View {
         }
         .sheet(isPresented: $showingInsights) {
             PortfolioInsightsView()
-        }
-        .sheet(isPresented: $showingExport) {
-            ExportView()
         }
         .sheet(isPresented: $showingSettingsView) {
             SettingsView()

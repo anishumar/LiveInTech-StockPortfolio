@@ -11,6 +11,7 @@ struct SettingsView: View {
     @StateObject private var viewModel = SettingsViewModel()
     @StateObject private var userSession = UserSession.shared
     @Environment(\.dismiss) private var dismiss
+    @State private var showingExportView = false
     
     var body: some View {
         NavigationView {
@@ -39,6 +40,9 @@ struct SettingsView: View {
                     }
                 }
             }
+        }
+        .sheet(isPresented: $showingExportView) {
+            ExportView()
         }
     }
     
@@ -190,7 +194,7 @@ struct SettingsView: View {
     private var dataPrivacySection: some View {
         Section {
             Button(action: {
-                viewModel.exportData()
+                showingExportView = true
             }) {
                 HStack {
                     Image(systemName: "square.and.arrow.up")
