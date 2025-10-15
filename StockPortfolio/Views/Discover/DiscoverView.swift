@@ -461,19 +461,7 @@ struct StockDetailView: View {
     }
     
     private var actionButtons: some View {
-        HStack(spacing: 12) {
-            Button("Add to Watchlist") {
-                showingAddToWatchlist = true
-            }
-            .buttonStyle(.bordered)
-            .frame(maxWidth: .infinity)
-            
-            Button("Trade") {
-                showingTradeView = true
-            }
-            .buttonStyle(.borderedProminent)
-            .frame(maxWidth: .infinity)
-        }
+        EmptyView()
     }
 }
 

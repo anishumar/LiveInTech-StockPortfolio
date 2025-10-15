@@ -9,6 +9,8 @@ import SwiftUI
 
 struct SignupView: View {
     @StateObject private var viewModel = AuthViewModel()
+    @State private var firstName = ""
+    @State private var lastName = ""
     @State private var email = ""
     @State private var password = ""
     @State private var confirmPassword = ""
@@ -35,6 +37,30 @@ struct SignupView: View {
                 
                 // Form
                 VStack(spacing: 16) {
+                    // First Name Field
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("First Name")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        TextField("Enter your first name", text: $firstName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .autocapitalization(.words)
+                            .disableAutocorrection(true)
+                    }
+                    
+                    // Last Name Field
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Last Name")
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                        
+                        TextField("Enter your last name", text: $lastName)
+                            .textFieldStyle(RoundedBorderTextFieldStyle())
+                            .autocapitalization(.words)
+                            .disableAutocorrection(true)
+                    }
+                    
                     // Email Field
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Email")
@@ -88,7 +114,7 @@ struct SignupView: View {
                     
                     // Sign Up Button
                     Button(action: {
-                        viewModel.signup(email: email, password: password, confirmPassword: confirmPassword)
+                        viewModel.signup(firstName: firstName, lastName: lastName, email: email, password: password, confirmPassword: confirmPassword)
                     }) {
                         HStack {
                             if viewModel.isLoading {
@@ -105,7 +131,7 @@ struct SignupView: View {
                         .foregroundColor(.white)
                         .cornerRadius(8)
                     }
-                    .disabled(viewModel.isLoading || email.isEmpty || password.isEmpty || confirmPassword.isEmpty)
+                    .disabled(viewModel.isLoading || firstName.isEmpty || lastName.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty)
                     
                     // Error Message
                     if let errorMessage = viewModel.errorMessage {

@@ -11,9 +11,6 @@ import Combine
 class SettingsViewModel: BaseViewModel {
     // MARK: - Published Properties
     
-    @Published var selectedTheme: ThemeOption = .system
-    @Published var selectedCurrency: CurrencyOption = .usd
-    @Published var defaultTradeType: SettingsTradeType = .buy
     @Published var priceAlertsEnabled: Bool = true
     @Published var portfolioUpdatesEnabled: Bool = true
     @Published var marketNewsEnabled: Bool = false
@@ -21,12 +18,11 @@ class SettingsViewModel: BaseViewModel {
     // MARK: - Dependencies
     
     private let userDefaults = UserDefaults.standard
+    private let userStore = UserStore.shared
+    private let userSession = UserSession.shared
     
     // MARK: - Keys
     
-    private let themeKey = "selectedTheme"
-    private let currencyKey = "selectedCurrency"
-    private let defaultTradeTypeKey = "defaultTradeType"
     private let priceAlertsKey = "priceAlertsEnabled"
     private let portfolioUpdatesKey = "portfolioUpdatesEnabled"
     private let marketNewsKey = "marketNewsEnabled"
@@ -43,24 +39,6 @@ class SettingsViewModel: BaseViewModel {
     
     private func setupBindings() {
         // Save settings when they change
-        $selectedTheme
-            .sink { [weak self] theme in
-                self?.saveTheme(theme)
-            }
-            .store(in: &cancellables)
-        
-        $selectedCurrency
-            .sink { [weak self] currency in
-                self?.saveCurrency(currency)
-            }
-            .store(in: &cancellables)
-        
-        $defaultTradeType
-            .sink { [weak self] (tradeType: SettingsTradeType) in
-                self?.saveDefaultTradeType(tradeType)
-            }
-            .store(in: &cancellables)
-        
         $priceAlertsEnabled
             .sink { [weak self] enabled in
                 self?.savePriceAlerts(enabled)
@@ -109,17 +87,11 @@ class SettingsViewModel: BaseViewModel {
     
     func resetSettings() {
         // Reset all settings to defaults
-        selectedTheme = .system
-        selectedCurrency = .usd
-        defaultTradeType = SettingsTradeType.buy
         priceAlertsEnabled = true
         portfolioUpdatesEnabled = true
         marketNewsEnabled = false
         
         // Clear all saved settings
-        userDefaults.removeObject(forKey: themeKey)
-        userDefaults.removeObject(forKey: currencyKey)
-        userDefaults.removeObject(forKey: defaultTradeTypeKey)
         userDefaults.removeObject(forKey: priceAlertsKey)
         userDefaults.removeObject(forKey: portfolioUpdatesKey)
         userDefaults.removeObject(forKey: marketNewsKey)
@@ -140,40 +112,10 @@ class SettingsViewModel: BaseViewModel {
     // MARK: - Private Methods
     
     private func loadSettings() {
-        // Load theme
-        if let themeRawValue = userDefaults.string(forKey: themeKey),
-           let theme = ThemeOption(rawValue: themeRawValue) {
-            selectedTheme = theme
-        }
-        
-        // Load currency
-        if let currencyRawValue = userDefaults.string(forKey: currencyKey),
-           let currency = CurrencyOption(rawValue: currencyRawValue) {
-            selectedCurrency = currency
-        }
-        
-        // Load default trade type
-        if let tradeTypeRawValue = userDefaults.string(forKey: defaultTradeTypeKey),
-           let tradeType = SettingsTradeType(rawValue: tradeTypeRawValue) {
-            defaultTradeType = tradeType
-        }
-        
         // Load notification settings
         priceAlertsEnabled = userDefaults.object(forKey: priceAlertsKey) as? Bool ?? true
         portfolioUpdatesEnabled = userDefaults.object(forKey: portfolioUpdatesKey) as? Bool ?? true
         marketNewsEnabled = userDefaults.object(forKey: marketNewsKey) as? Bool ?? false
-    }
-    
-    private func saveTheme(_ theme: ThemeOption) {
-        userDefaults.set(theme.rawValue, forKey: themeKey)
-    }
-    
-    private func saveCurrency(_ currency: CurrencyOption) {
-        userDefaults.set(currency.rawValue, forKey: currencyKey)
-    }
-    
-    private func saveDefaultTradeType(_ tradeType: SettingsTradeType) {
-        userDefaults.set(tradeType.rawValue, forKey: defaultTradeTypeKey)
     }
     
     private func savePriceAlerts(_ enabled: Bool) {
@@ -186,6 +128,26 @@ class SettingsViewModel: BaseViewModel {
     
     private func saveMarketNews(_ enabled: Bool) {
         userDefaults.set(enabled, forKey: marketNewsKey)
+    }
+    
+    // MARK: - User Profile Management
+    
+    func updateUserProfile(firstName: String, lastName: String, email: String) {
+        guard let currentUser = userSession.currentUser else { return }
+        
+        // Create updated user with new firstName and lastName
+        let updatedUser = User(
+            email: currentUser.email, // Keep original email
+            password: currentUser.password,
+            firstName: firstName.trimmingCharacters(in: .whitespacesAndNewlines),
+            lastName: lastName.trimmingCharacters(in: .whitespacesAndNewlines)
+        )
+        
+        // Update in UserStore
+        userStore.updateUser(updatedUser)
+        
+        // Update in UserSession
+        userSession.updateCurrentUser(updatedUser)
     }
 }
 

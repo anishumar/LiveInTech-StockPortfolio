@@ -13,15 +13,13 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showingExportView = false
     @State private var showingTransactionHistory = false
+    @State private var showingEditProfile = false
     
     var body: some View {
         NavigationView {
             List {
                 // User Profile Section
                 userProfileSection
-                
-                // App Preferences Section
-                appPreferencesSection
                 
                 // Notifications Section
                 notificationsSection
@@ -48,6 +46,9 @@ struct SettingsView: View {
         .sheet(isPresented: $showingTransactionHistory) {
             TransactionHistoryView()
         }
+        .sheet(isPresented: $showingEditProfile) {
+            EditProfileView()
+        }
     }
     
     // MARK: - User Profile Section
@@ -60,11 +61,11 @@ struct SettingsView: View {
                     .foregroundColor(Color.blue)
                 
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("John Doe")
+                    Text(userSession.currentUser?.fullName ?? "User")
                         .font(.headline)
                         .fontWeight(.semibold)
                     
-                    Text("john.doe@example.com")
+                    Text(userSession.currentUser?.email ?? "No email")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -72,7 +73,7 @@ struct SettingsView: View {
                 Spacer()
                 
                 Button("Edit") {
-                    // Handle edit profile
+                    showingEditProfile = true
                 }
                 .buttonStyle(.bordered)
             }
@@ -82,67 +83,6 @@ struct SettingsView: View {
         }
     }
     
-    // MARK: - App Preferences Section
-    
-    private var appPreferencesSection: some View {
-        Section {
-            // Theme Setting
-            HStack {
-                Image(systemName: "paintbrush.fill")
-                    .foregroundColor(Color.blue)
-                    .frame(width: 24)
-                
-                Text("Theme")
-                
-                Spacer()
-                
-                Picker("Theme", selection: $viewModel.selectedTheme) {
-                    ForEach(ThemeOption.allCases, id: \.self) { theme in
-                        Text(theme.displayName).tag(theme)
-                    }
-                }
-                .pickerStyle(MenuPickerStyle())
-            }
-            
-            // Currency Setting
-            HStack {
-                Image(systemName: "dollarsign.circle.fill")
-                    .foregroundColor(.green)
-                    .frame(width: 24)
-                
-                Text("Currency")
-                
-                Spacer()
-                
-                Picker("Currency", selection: $viewModel.selectedCurrency) {
-                    ForEach(CurrencyOption.allCases, id: \.self) { currency in
-                        Text(currency.displayName).tag(currency)
-                    }
-                }
-                .pickerStyle(MenuPickerStyle())
-            }
-            
-            // Default Trade Type
-            HStack {
-                Image(systemName: "arrow.up.arrow.down.circle.fill")
-                    .foregroundColor(.orange)
-                    .frame(width: 24)
-                
-                Text("Default Trade Type")
-                
-                Spacer()
-                
-                Picker("Trade Type", selection: $viewModel.defaultTradeType) {
-                    ForEach(SettingsTradeType.allCases, id: \.self) { type in
-                        Text(type.displayName).tag(type)
-                    }
-                }
-                .pickerStyle(MenuPickerStyle())
-            }
-        } header: {
-            Text("Preferences")
-        }
-    }
     
     // MARK: - Notifications Section
     
@@ -358,47 +298,6 @@ struct SettingsView: View {
 
 // MARK: - Supporting Types
 
-enum ThemeOption: String, CaseIterable {
-    case system = "system"
-    case light = "light"
-    case dark = "dark"
-    
-    var displayName: String {
-        switch self {
-        case .system: return "System"
-        case .light: return "Light"
-        case .dark: return "Dark"
-        }
-    }
-}
-
-enum CurrencyOption: String, CaseIterable {
-    case usd = "USD"
-    case eur = "EUR"
-    case gbp = "GBP"
-    case jpy = "JPY"
-    
-    var displayName: String {
-        switch self {
-        case .usd: return "USD ($)"
-        case .eur: return "EUR (€)"
-        case .gbp: return "GBP (£)"
-        case .jpy: return "JPY (¥)"
-        }
-    }
-}
-
-enum SettingsTradeType: String, CaseIterable {
-    case buy = "buy"
-    case sell = "sell"
-    
-    var displayName: String {
-        switch self {
-        case .buy: return "Buy"
-        case .sell: return "Sell"
-        }
-    }
-}
 
 #Preview {
     SettingsView()

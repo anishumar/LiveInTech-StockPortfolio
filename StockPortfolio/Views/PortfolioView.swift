@@ -146,7 +146,7 @@ struct PortfolioView: View {
     private var portfolioContent: some View {
         LazyVStack(spacing: 0) {
             ForEach(viewModel.portfolioStocks, id: \.symbol) { stock in
-                NavigationLink(destination: TradeView()) {
+                NavigationLink(destination: PortfolioStockDetailView(stock: stock.toStock())) {
                     PortfolioStockRowView(stock: stock)
                 }
                 .buttonStyle(PlainButtonStyle())

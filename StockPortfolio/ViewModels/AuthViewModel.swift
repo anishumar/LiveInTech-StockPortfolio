@@ -48,10 +48,20 @@ class AuthViewModel: BaseViewModel {
         }
     }
     
-    func signup(email: String, password: String, confirmPassword: String) {
+    func signup(firstName: String, lastName: String, email: String, password: String, confirmPassword: String) {
         clearErrors()
         
         // Validate inputs
+        guard !firstName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            emailError = "Please enter your first name"
+            return
+        }
+        
+        guard !lastName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            emailError = "Please enter your last name"
+            return
+        }
+        
         guard validateEmail(email) else {
             emailError = "Please enter a valid email address"
             return
@@ -71,7 +81,7 @@ class AuthViewModel: BaseViewModel {
         
         // Simulate network delay
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.performSignup(email: email, password: password)
+            self.performSignup(firstName: firstName, lastName: lastName, email: email, password: password)
         }
     }
     
@@ -91,7 +101,7 @@ class AuthViewModel: BaseViewModel {
         }
     }
     
-    private func performSignup(email: String, password: String) {
+    private func performSignup(firstName: String, lastName: String, email: String, password: String) {
         // Check if user already exists
         if userStore.getUser(email: email) != nil {
             errorMessage = "An account with this email already exists"
@@ -100,7 +110,7 @@ class AuthViewModel: BaseViewModel {
         }
         
         // Create new user
-        let newUser = User(email: email, password: password)
+        let newUser = User(email: email, password: password, firstName: firstName, lastName: lastName)
         userStore.saveUser(newUser)
         userSession.login(user: newUser)
         isLoading = false

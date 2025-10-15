@@ -44,8 +44,16 @@ class UserStore {
     private func seedTestUser() {
         // Only seed if no users exist
         if getAllUsers().isEmpty {
-            let testUser = User(email: "test@stockport.com", password: "Test@123")
+            let testUser = User(email: "test@stockport.com", password: "Test@123", firstName: "Test", lastName: "User")
             saveUser(testUser)
+        }
+    }
+    
+    func updateUser(_ user: User) {
+        var users = getAllUsers()
+        if let index = users.firstIndex(where: { $0.id == user.id }) {
+            users[index] = user
+            saveUsers(users)
         }
     }
 }

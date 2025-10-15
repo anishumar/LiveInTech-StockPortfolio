@@ -34,6 +34,11 @@ class UserSession: ObservableObject {
         clearSession()
     }
     
+    func updateCurrentUser(_ user: User) {
+        currentUser = user
+        saveSession()
+    }
+    
     private func saveSession() {
         if let user = currentUser {
             let encoder = JSONEncoder()

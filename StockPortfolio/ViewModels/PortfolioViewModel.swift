@@ -41,6 +41,22 @@ struct PortfolioStock: Identifiable, Equatable {
     var isPositiveGain: Bool {
         return gainLoss >= 0
     }
+    
+    func toStock() -> Stock {
+        // Find the original stock data to get additional properties
+        if let originalStock = Stock.mockStocks.first(where: { $0.symbol == self.symbol }) {
+            return originalStock
+        } else {
+            // Fallback: create a basic Stock from PortfolioStock data
+            return Stock(
+                symbol: self.symbol,
+                name: self.name,
+                price: self.currentPrice,
+                dailyChange: self.dailyChange,
+                chartPoints: []
+            )
+        }
+    }
 }
 
 class PortfolioViewModel: BaseViewModel {
