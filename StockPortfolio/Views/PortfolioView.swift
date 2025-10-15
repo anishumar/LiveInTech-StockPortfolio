@@ -10,7 +10,6 @@ import SwiftUI
 struct PortfolioView: View {
     @StateObject private var viewModel = PortfolioViewModel()
     @State private var showingTradeView = false
-    @State private var showingTransactionHistory = false
     @State private var showingErrorAlert = false
     @State private var errorToShow: Error?
     
@@ -37,15 +36,6 @@ struct PortfolioView: View {
             .navigationTitle("Portfolio")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {
-                        showingTransactionHistory = true
-                    }) {
-                        Image(systemName: "clock.arrow.circlepath")
-                            .foregroundColor(.blue)
-                    }
-                }
-                
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Trade") {
                         showingTradeView = true
@@ -58,9 +48,6 @@ struct PortfolioView: View {
             }
             .sheet(isPresented: $showingTradeView) {
                 TradeView()
-            }
-            .sheet(isPresented: $showingTransactionHistory) {
-                TransactionHistoryView()
             }
             .onChange(of: viewModel.errorMessage) { errorMessage in
                 if let errorMessage = errorMessage {

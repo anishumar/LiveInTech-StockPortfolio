@@ -12,6 +12,7 @@ struct SettingsView: View {
     @StateObject private var userSession = UserSession.shared
     @Environment(\.dismiss) private var dismiss
     @State private var showingExportView = false
+    @State private var showingTransactionHistory = false
     
     var body: some View {
         NavigationView {
@@ -43,6 +44,9 @@ struct SettingsView: View {
         }
         .sheet(isPresented: $showingExportView) {
             ExportView()
+        }
+        .sheet(isPresented: $showingTransactionHistory) {
+            TransactionHistoryView()
         }
     }
     
@@ -193,6 +197,25 @@ struct SettingsView: View {
     
     private var dataPrivacySection: some View {
         Section {
+            Button(action: {
+                showingTransactionHistory = true
+            }) {
+                HStack {
+                    Image(systemName: "clock.arrow.circlepath")
+                        .foregroundColor(.blue)
+                        .frame(width: 24)
+                    
+                    Text("Transaction History")
+                    
+                    Spacer()
+                    
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+            .foregroundColor(.primary)
+            
             Button(action: {
                 showingExportView = true
             }) {
