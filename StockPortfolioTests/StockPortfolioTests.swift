@@ -362,3 +362,126 @@ class PortfolioViewModelTests: XCTestCase {
         XCTAssertFalse(portfolioViewModel.isPositiveGain)
     }
 }
+
+// MARK: - TradeViewModel Tests
+class TradeViewModelTests: XCTestCase {
+    var tradeViewModel: TradeViewModel!
+    var cancellables: Set<AnyCancellable>!
+    
+    override func setUpWithError() throws {
+        tradeViewModel = TradeViewModel()
+        cancellables = Set<AnyCancellable>()
+    }
+    
+    override func tearDownWithError() throws {
+        cancellables = nil
+        tradeViewModel = nil
+    }
+    
+    func testTradeViewModelInitialization() throws {
+        XCTAssertNotNil(tradeViewModel)
+        XCTAssertNil(tradeViewModel.selectedStock)
+        XCTAssertEqual(tradeViewModel.tradeType, .buy)
+        XCTAssertEqual(tradeViewModel.quantity, "")
+        XCTAssertEqual(tradeViewModel.searchQuery, "")
+        XCTAssertTrue(tradeViewModel.searchResults.isEmpty)
+        XCTAssertEqual(tradeViewModel.currentPrice, 0.0)
+        XCTAssertEqual(tradeViewModel.totalCost, 0.0)
+        XCTAssertFalse(tradeViewModel.canExecuteTrade)
+        XCTAssertEqual(tradeViewModel.availableQuantity, 0)
+    }
+    
+    func testSelectStock() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        
+        tradeViewModel.selectStock(stock)
+        
+        XCTAssertEqual(tradeViewModel.selectedStock?.symbol, "AAPL")
+        XCTAssertEqual(tradeViewModel.currentPrice, 174.26)
+        XCTAssertTrue(tradeViewModel.hasSelectedStock)
+    }
+    
+    func testCalculateTotalCost() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        tradeViewModel.selectStock(stock)
+        
+        tradeViewModel.quantity = "2"
+        
+        // Wait for async calculation
+        let expectation = XCTestExpectation(description: "Total cost calculated")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            XCTAssertEqual(self.tradeViewModel.totalCost, 348.52)
+            XCTAssertEqual(self.tradeViewModel.formattedTotalCost, "$348.52")
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 1.0)
+    }
+    
+    func testTradeButtonTitle() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        tradeViewModel.selectStock(stock)
+        
+        // Test buy button title
+        tradeViewModel.tradeType = .buy
+        tradeViewModel.quantity = "5"
+        XCTAssertEqual(tradeViewModel.tradeButtonTitle, "Buy 5 Shares")
+        
+        // Test sell button title
+        tradeViewModel.tradeType = .sell
+        tradeViewModel.quantity = "3"
+        XCTAssertEqual(tradeViewModel.tradeButtonTitle, "Sell 3 Shares")
+    }
+    
+    func testClearSelection() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        tradeViewModel.selectStock(stock)
+        tradeViewModel.quantity = "5"
+        tradeViewModel.searchQuery = "Apple"
+        
+        tradeViewModel.clearSelection()
+        
+        XCTAssertNil(tradeViewModel.selectedStock)
+        XCTAssertEqual(tradeViewModel.quantity, "")
+        XCTAssertEqual(tradeViewModel.searchQuery, "")
+        XCTAssertTrue(tradeViewModel.searchResults.isEmpty)
+        XCTAssertEqual(tradeViewModel.currentPrice, 0.0)
+        XCTAssertEqual(tradeViewModel.totalCost, 0.0)
+        XCTAssertFalse(tradeViewModel.hasSelectedStock)
+    }
+    
+    func testTradeTypeChange() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        tradeViewModel.selectStock(stock)
+        
+        // Test buy type
+        tradeViewModel.tradeType = .buy
+        XCTAssertEqual(tradeViewModel.tradeType, .buy)
+        
+        // Test sell type
+        tradeViewModel.tradeType = .sell
+        XCTAssertEqual(tradeViewModel.tradeType, .sell)
+    }
+    
+    func testFormattedCurrentPrice() throws {
+        let stock = Stock(symbol: "AAPL", name: "Apple Inc.", price: 174.26, dailyChange: -0.42, chartPoints: nil)
+        tradeViewModel.selectStock(stock)
+        
+        XCTAssertEqual(tradeViewModel.formattedCurrentPrice, "$174.26")
+    }
+    
+    func testFormattedAvailableQuantity() throws {
+        tradeViewModel.availableQuantity = 10
+        XCTAssertEqual(tradeViewModel.formattedAvailableQuantity, "10 shares available")
+    }
+    
+    func testCanSell() throws {
+        // Test with no available quantity
+        tradeViewModel.availableQuantity = 0
+        XCTAssertFalse(tradeViewModel.canSell)
+        
+        // Test with available quantity
+        tradeViewModel.availableQuantity = 5
+        XCTAssertTrue(tradeViewModel.canSell)
+    }
+}
