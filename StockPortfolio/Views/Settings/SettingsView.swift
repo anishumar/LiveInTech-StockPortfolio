@@ -41,7 +41,16 @@ struct SettingsView: View {
             }
         }
         .sheet(isPresented: $showingExportView) {
-            ExportView()
+            Text("Export functionality will be implemented here")
+                .navigationTitle("Export Data")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            showingExportView = false
+                        }
+                    }
+                }
         }
         .sheet(isPresented: $showingTransactionHistory) {
             TransactionHistoryView()
@@ -88,19 +97,6 @@ struct SettingsView: View {
     
     private var notificationsSection: some View {
         Section {
-            // Price Alerts
-            HStack {
-                Image(systemName: "bell.fill")
-                    .foregroundColor(.red)
-                    .frame(width: 24)
-                
-                Text("Price Alerts")
-                
-                Spacer()
-                
-                Toggle("", isOn: $viewModel.priceAlertsEnabled)
-            }
-            
             // Portfolio Updates
             HStack {
                 Image(systemName: "chart.line.uptrend.xyaxis")

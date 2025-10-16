@@ -166,7 +166,7 @@ struct SignupView: View {
                     }
                 }
             }
-            .onChange(of: viewModel.isLoggedIn) { isLoggedIn in
+            .onChange(of: viewModel.isLoggedIn) { _, isLoggedIn in
                 if isLoggedIn {
                     dismiss()
                 }

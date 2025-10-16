@@ -13,7 +13,7 @@ enum TransactionType: String, Codable, CaseIterable {
 }
 
 struct Transaction: Codable, Identifiable {
-    let id = UUID()
+    let id: UUID
     let symbol: String
     let quantity: Int
     let price: Double
@@ -21,6 +21,7 @@ struct Transaction: Codable, Identifiable {
     let timestamp: Date
     
     init(symbol: String, quantity: Int, price: Double, type: TransactionType) {
+        self.id = UUID()
         self.symbol = symbol
         self.quantity = quantity
         self.price = price

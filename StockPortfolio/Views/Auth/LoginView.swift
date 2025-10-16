@@ -118,7 +118,7 @@ struct LoginView: View {
             .sheet(isPresented: $showingSignup) {
                 SignupView()
             }
-            .onChange(of: viewModel.isLoggedIn) { isLoggedIn in
+            .onChange(of: viewModel.isLoggedIn) { _, isLoggedIn in
                 if isLoggedIn {
                     // Navigation will be handled by parent view
                 }

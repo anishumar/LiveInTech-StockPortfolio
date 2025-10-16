@@ -207,7 +207,7 @@ struct WatchlistStockRowView: View {
 }
 
 struct AddToWatchlistView: View {
-    @StateObject private var viewModel = AdvancedSearchViewModel()
+    @StateObject private var viewModel = DiscoverViewModel()
     @Environment(\.dismiss) private var dismiss
     let onAdd: (Stock) -> Void
     

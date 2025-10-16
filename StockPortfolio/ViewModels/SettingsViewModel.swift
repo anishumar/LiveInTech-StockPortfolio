@@ -11,7 +11,6 @@ import Combine
 class SettingsViewModel: BaseViewModel {
     // MARK: - Published Properties
     
-    @Published var priceAlertsEnabled: Bool = true
     @Published var portfolioUpdatesEnabled: Bool = true
     @Published var marketNewsEnabled: Bool = false
     
@@ -23,7 +22,6 @@ class SettingsViewModel: BaseViewModel {
     
     // MARK: - Keys
     
-    private let priceAlertsKey = "priceAlertsEnabled"
     private let portfolioUpdatesKey = "portfolioUpdatesEnabled"
     private let marketNewsKey = "marketNewsEnabled"
     
@@ -39,12 +37,6 @@ class SettingsViewModel: BaseViewModel {
     
     private func setupBindings() {
         // Save settings when they change
-        $priceAlertsEnabled
-            .sink { [weak self] enabled in
-                self?.savePriceAlerts(enabled)
-            }
-            .store(in: &cancellables)
-        
         $portfolioUpdatesEnabled
             .sink { [weak self] enabled in
                 self?.savePortfolioUpdates(enabled)
@@ -87,12 +79,10 @@ class SettingsViewModel: BaseViewModel {
     
     func resetSettings() {
         // Reset all settings to defaults
-        priceAlertsEnabled = true
         portfolioUpdatesEnabled = true
         marketNewsEnabled = false
         
         // Clear all saved settings
-        userDefaults.removeObject(forKey: priceAlertsKey)
         userDefaults.removeObject(forKey: portfolioUpdatesKey)
         userDefaults.removeObject(forKey: marketNewsKey)
         
@@ -113,13 +103,8 @@ class SettingsViewModel: BaseViewModel {
     
     private func loadSettings() {
         // Load notification settings
-        priceAlertsEnabled = userDefaults.object(forKey: priceAlertsKey) as? Bool ?? true
         portfolioUpdatesEnabled = userDefaults.object(forKey: portfolioUpdatesKey) as? Bool ?? true
         marketNewsEnabled = userDefaults.object(forKey: marketNewsKey) as? Bool ?? false
-    }
-    
-    private func savePriceAlerts(_ enabled: Bool) {
-        userDefaults.set(enabled, forKey: priceAlertsKey)
     }
     
     private func savePortfolioUpdates(_ enabled: Bool) {

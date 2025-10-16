@@ -8,13 +8,14 @@
 import Foundation
 
 struct PortfolioItem: Codable, Identifiable {
-    let id = UUID()
+    let id: UUID
     let symbol: String
     let quantity: Int
     let averagePrice: Double
     let purchaseDate: Date
     
     init(symbol: String, quantity: Int, averagePrice: Double) {
+        self.id = UUID()
         self.symbol = symbol
         self.quantity = quantity
         self.averagePrice = averagePrice

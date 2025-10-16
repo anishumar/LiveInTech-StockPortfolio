@@ -47,7 +47,7 @@ struct PortfolioView: View {
             .sheet(isPresented: $showingTradeView) {
                 TradeView()
             }
-            .onChange(of: viewModel.errorMessage) { errorMessage in
+            .onChange(of: viewModel.errorMessage) { _, errorMessage in
                 if let errorMessage = errorMessage {
                     errorToShow = NSError(domain: "PortfolioError", code: 0, userInfo: [NSLocalizedDescriptionKey: errorMessage])
                     showingErrorAlert = true
