@@ -10,6 +10,7 @@ import SwiftUI
 struct DiscoverView: View {
     @StateObject private var viewModel = DiscoverViewModel()
     @State private var showingWatchlist = false
+    @State private var selectedStock: Stock?
     
     var body: some View {
         NavigationView {
@@ -38,6 +39,9 @@ struct DiscoverView: View {
         }
         .sheet(isPresented: $showingWatchlist) {
             WatchlistView()
+        }
+        .sheet(item: $selectedStock) { stock in
+            DiscoverStockDetailView(stock: stock)
         }
         .onAppear {
             viewModel.loadAllStocks()
@@ -81,6 +85,9 @@ struct DiscoverView: View {
             LazyVStack(spacing: 12) {
                 ForEach(viewModel.filteredStocks) { stock in
                     StockRowView(stock: stock)
+                        .onTapGesture {
+                            selectedStock = stock
+                        }
                 }
             }
             .padding(.horizontal)
